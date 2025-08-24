@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Requires Updates</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f44336;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .button {
+            display: inline-block;
+            background-color: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .product-details {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .rejection-reason {
+            background-color: #fff3f3;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Product Requires Updates</h1>
+    </div>
+    <div class="content">
+        <p>Hello {{ seller_name }},</p>
+        
+        <p>Thank you for submitting your product to our marketplace. After careful review, we've determined that some updates are needed before your product can be approved.</p>
+        
+        <div class="product-details">
+            <h3>Product Details:</h3>
+            <p><strong>Product Name:</strong> {{ product_name }}</p>
+            <p><strong>Product ID:</strong> {{ product_id }}</p>
+            <p><strong>Review Date:</strong> {{ rejection_date }}</p>
+            <p><strong>Reviewed By:</strong> {{ admin_name }}</p>
+        </div>
+        
+        <div class="rejection-reason">
+            <h3>Reason for Updates Required:</h3>
+            <p>{{ rejection_reason }}</p>
+        </div>
+        
+        <p>Please make the necessary updates to your product and resubmit it for approval. Once the issues are addressed, your product will be reviewed again.</p>
+        
+        <p>If you have any questions or need clarification about the required updates, please contact our seller support team.</p>
+        
+        <a href="/seller/dashboard/products/{{ product_id }}/edit" class="button">Edit Product</a>
+        
+        <p>Thank you for your understanding and cooperation.</p>
+        
+        <p>Best regards,<br>
+        The Marketplace Team</p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message. Please do not reply to this email.</p>
+        <p>&copy; 2023 Marketplace. All rights reserved.</p>
+    </div>
+</body>
+</html>

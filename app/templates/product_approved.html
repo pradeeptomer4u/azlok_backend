@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Approved</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .product-details {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Product Approved!</h1>
+    </div>
+    <div class="content">
+        <p>Hello {{ seller_name }},</p>
+        
+        <p>Great news! Your product has been approved and is now live on our marketplace.</p>
+        
+        <div class="product-details">
+            <h3>Product Details:</h3>
+            <p><strong>Product Name:</strong> {{ product_name }}</p>
+            <p><strong>Product ID:</strong> {{ product_id }}</p>
+            <p><strong>Approval Date:</strong> {{ approval_date }}</p>
+            <p><strong>Approved By:</strong> {{ admin_name }}</p>
+        </div>
+        
+        <p>Your product is now visible to all customers and available for purchase. You can track orders and manage your product from your seller dashboard.</p>
+        
+        <p>If you have any questions or need assistance, please don't hesitate to contact our seller support team.</p>
+        
+        <a href="/seller/dashboard/products/{{ product_id }}" class="button">View Product</a>
+        
+        <p>Thank you for selling with us!</p>
+        
+        <p>Best regards,<br>
+        The Marketplace Team</p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message. Please do not reply to this email.</p>
+        <p>&copy; 2023 Marketplace. All rights reserved.</p>
+    </div>
+</body>
+</html>

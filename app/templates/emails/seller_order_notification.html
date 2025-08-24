@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Order Received</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4f46e5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+        .highlight {
+            background-color: #f3f4f6;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f9fafb;
+        }
+        .total {
+            font-weight: bold;
+            text-align: right;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #4f46e5;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>New Order Received</h1>
+    </div>
+    <div class="content">
+        <p>Dear Seller,</p>
+        
+        <p>You have received a new order <strong>#{{ order_number }}</strong> from <strong>{{ customer_name }}</strong>.</p>
+        
+        <div class="highlight">
+            <p>Please process this order as soon as possible. Orders should be processed within 24 hours of receipt.</p>
+        </div>
+        
+        <h3>Order Details:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" class="total">Total:</td>
+                    <td>₹{{ total }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <p>You can view and manage this order in your seller dashboard.</p>
+        
+        <a href="https://azlok.com/seller/orders" class="cta-button">View Order</a>
+        
+        <p>Thank you for being a valued seller on Azlok Enterprises!</p>
+        
+        <p>Best regards,<br>The Azlok Team</p>
+    </div>
+    <div class="footer">
+        <p>© 2025 Azlok Enterprises. All rights reserved.</p>
+        <p>If you have any questions, please contact seller support at seller-support@azlok.com</p>
+    </div>
+</body>
+</html>

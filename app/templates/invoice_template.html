@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ invoice.invoice_number }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .invoice-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+        .company-info {
+            flex: 1;
+        }
+        .company-info h1 {
+            color: #4a6cf7;
+            margin: 0 0 5px 0;
+            font-size: 28px;
+        }
+        .invoice-details {
+            text-align: right;
+        }
+        .invoice-details h2 {
+            color: #4a6cf7;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .invoice-details-row {
+            margin-bottom: 5px;
+        }
+        .invoice-details-label {
+            font-weight: bold;
+        }
+        .addresses {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .address-block {
+            flex: 1;
+            max-width: 48%;
+        }
+        .address-block h3 {
+            margin: 0 0 10px 0;
+            color: #4a6cf7;
+            font-size: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th {
+            background-color: #f8f9fa;
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .totals {
+            width: 40%;
+            margin-left: auto;
+        }
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+        .totals-label {
+            font-weight: bold;
+        }
+        .grand-total {
+            font-size: 18px;
+            font-weight: bold;
+            border-top: 2px solid #4a6cf7;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+        .notes {
+            margin-top: 30px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 20px;
+        }
+        .notes h3 {
+            margin: 0 0 10px 0;
+            color: #4a6cf7;
+            font-size: 16px;
+        }
+        .payment-info {
+            margin-top: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .payment-info h3 {
+            margin: 0 0 10px 0;
+            color: #4a6cf7;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 20px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-draft {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .status-issued {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-partially-paid {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status-cancelled {
+            background-color: #6c757d;
+            color: #fff;
+        }
+        .status-refunded {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        @media print {
+            body {
+                font-size: 12px;
+            }
+            .invoice-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <div class="company-info">
+                <h1>Azlok</h1>
+                <div>123 Commerce Street</div>
+                <div>Mumbai, Maharashtra 400001</div>
+                <div>India</div>
+                <div>GSTIN: 27AABCA1234Z1Z5</div>
+                <div>Email: support@azlok.com</div>
+                <div>Phone: +91 22 1234 5678</div>
+            </div>
+            <div class="invoice-details">
+                <h2>INVOICE</h2>
+                <div class="invoice-details-row">
+                    <span class="invoice-details-label">Invoice #:</span>
+                    <span>{{ invoice.invoice_number }}</span>
+                </div>
+                <div class="invoice-details-row">
+                    <span class="invoice-details-label">Date:</span>
+                    <span>{{ invoice.issue_date.strftime('%d %b %Y') }}</span>
+                </div>
+                <div class="invoice-details-row">
+                    <span class="invoice-details-label">Due Date:</span>
+                    <span>{{ invoice.due_date.strftime('%d %b %Y') }}</span>
+                </div>
+                <div class="invoice-details-row">
+                    <span class="invoice-details-label">Status:</span>
+                    <span class="status-badge status-{{ invoice.status.value }}">{{ invoice.status.value }}</span>
+                </div>
+                {% if invoice.order %}
+                <div class="invoice-details-row">
+                    <span class="invoice-details-label">Order #:</span>
+                    <span>{{ invoice.order.order_number }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="addresses">
+            <div class="address-block">
+                <h3>Bill To</h3>
+                <div>{{ customer.full_name }}</div>
+                {% if customer.business_name %}
+                <div>{{ customer.business_name }}</div>
+                {% endif %}
+                <div>{{ billing_address.street }}</div>
+                <div>{{ billing_address.city }}, {{ billing_address.state }} {{ billing_address.postal_code }}</div>
+                <div>{{ billing_address.country }}</div>
+                {% if customer.gst_number %}
+                <div>GSTIN: {{ customer.gst_number }}</div>
+                {% endif %}
+                <div>Email: {{ customer.email }}</div>
+                <div>Phone: {{ customer.phone }}</div>
+            </div>
+            {% if shipping_address %}
+            <div class="address-block">
+                <h3>Ship To</h3>
+                <div>{{ customer.full_name }}</div>
+                {% if customer.business_name %}
+                <div>{{ customer.business_name }}</div>
+                {% endif %}
+                <div>{{ shipping_address.street }}</div>
+                <div>{{ shipping_address.city }}, {{ shipping_address.state }} {{ shipping_address.postal_code }}</div>
+                <div>{{ shipping_address.country }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>HSN/SAC</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Tax</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in line_items %}
+                <tr>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.hsn_code or 'N/A' }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td class="text-right">₹{{ "%.2f"|format(item.unit_price) }}</td>
+                    <td class="text-right">₹{{ "%.2f"|format(item.tax_amount) }}</td>
+                    <td class="text-right">₹{{ "%.2f"|format(item.total) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <div class="totals-row">
+                <div class="totals-label">Subtotal:</div>
+                <div>₹{{ "%.2f"|format(invoice.subtotal) }}</div>
+            </div>
+            {% if invoice.cgst_amount > 0 %}
+            <div class="totals-row">
+                <div class="totals-label">CGST:</div>
+                <div>₹{{ "%.2f"|format(invoice.cgst_amount) }}</div>
+            </div>
+            {% endif %}
+            {% if invoice.sgst_amount > 0 %}
+            <div class="totals-row">
+                <div class="totals-label">SGST:</div>
+                <div>₹{{ "%.2f"|format(invoice.sgst_amount) }}</div>
+            </div>
+            {% endif %}
+            {% if invoice.igst_amount > 0 %}
+            <div class="totals-row">
+                <div class="totals-label">IGST:</div>
+                <div>₹{{ "%.2f"|format(invoice.igst_amount) }}</div>
+            </div>
+            {% endif %}
+            {% if invoice.discount_amount > 0 %}
+            <div class="totals-row">
+                <div class="totals-label">Discount:</div>
+                <div>-₹{{ "%.2f"|format(invoice.discount_amount) }}</div>
+            </div>
+            {% endif %}
+            {% if invoice.shipping_amount > 0 %}
+            <div class="totals-row">
+                <div class="totals-label">Shipping:</div>
+                <div>₹{{ "%.2f"|format(invoice.shipping_amount) }}</div>
+            </div>
+            {% endif %}
+            {% if invoice.adjustment_amount != 0 %}
+            <div class="totals-row">
+                <div class="totals-label">Adjustments:</div>
+                <div>₹{{ "%.2f"|format(invoice.adjustment_amount) }}</div>
+            </div>
+            {% endif %}
+            <div class="totals-row grand-total">
+                <div class="totals-label">Total:</div>
+                <div>₹{{ "%.2f"|format(invoice.total_amount) }}</div>
+            </div>
+            {% if invoice.amount_paid > 0 %}
+            <div class="totals-row">
+                <div class="totals-label">Amount Paid:</div>
+                <div>₹{{ "%.2f"|format(invoice.amount_paid) }}</div>
+            </div>
+            <div class="totals-row">
+                <div class="totals-label">Balance Due:</div>
+                <div>₹{{ "%.2f"|format(invoice.amount_due) }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if invoice.notes %}
+        <div class="notes">
+            <h3>Notes</h3>
+            <p>{{ invoice.notes }}</p>
+        </div>
+        {% endif %}
+
+        {% if invoice.terms %}
+        <div class="notes">
+            <h3>Terms & Conditions</h3>
+            <p>{{ invoice.terms }}</p>
+        </div>
+        {% endif %}
+
+        {% if invoice.payment_instructions %}
+        <div class="payment-info">
+            <h3>Payment Instructions</h3>
+            <p>{{ invoice.payment_instructions }}</p>
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            <p>Thank you for shopping with Azlok!</p>
+            <p>This is a computer-generated invoice and does not require a signature.</p>
+        </div>
+    </div>
+</body>
+</html>
