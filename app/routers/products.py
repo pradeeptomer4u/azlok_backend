@@ -105,6 +105,7 @@ async def read_products(
     size: Optional[int] = None,
     category_id: Optional[int] = None,
     is_featured: Optional[bool] = None,
+    is_bestseller: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.Product).filter(models.Product.approval_status == models.ApprovalStatus.APPROVED)
@@ -121,6 +122,15 @@ async def read_products(
             # For demonstration, we'll consider products with stock > 10 as featured
             # This is a temporary solution until a proper is_featured field is added
             query = query.filter(models.Product.stock_quantity > 10)
+            
+    # Apply bestseller filter if provided
+    # For now, we'll consider products with highest stock quantity as bestsellers
+    if is_bestseller is not None:
+        if is_bestseller:
+            # For demonstration, we'll consider products with stock > 20 as bestsellers
+            query = query.filter(models.Product.stock_quantity > 20)
+            # Order by stock quantity descending to get the true bestsellers first
+            query = query.order_by(models.Product.stock_quantity.desc())
     
     # Use size parameter if provided, otherwise use limit
     if size is not None:

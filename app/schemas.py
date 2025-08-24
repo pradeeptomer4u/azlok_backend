@@ -892,3 +892,22 @@ class InvoiceSummary(BaseModel):
     currency: str = "INR"
     status_counts: Dict[str, int]
     recent_invoices: List[InvoiceResponse] = []
+
+
+# Seller schema for top sellers
+class Seller(BaseModel):
+    id: int
+    username: str
+    full_name: str
+    business_name: str
+    business_address: Optional[Dict[str, Any]] = None
+    region: Optional[str] = None
+    rating: Optional[float] = None
+    total_sales: Optional[int] = None
+    product_count: Optional[int] = None
+    joined_date: Optional[datetime] = None
+    verified: Optional[bool] = True
+    image_url: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
