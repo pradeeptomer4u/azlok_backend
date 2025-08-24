@@ -770,6 +770,24 @@ async def delete_product(
     
     return None
 
+# Get top sellers
+@router.get("/top", response_model=List[schemas.Seller])
+async def get_top_sellers(
+    size: int = Query(4, ge=1, le=10),
+    db: Session = Depends(get_db)
+):
+    """
+    Get top sellers based on rating and sales
+    """
+    # Get sellers ordered by rating
+    sellers = db.query(models.Seller).order_by(models.Seller.rating.desc()).limit(size).all()
+    
+    # If not enough sellers, return what we have
+    if len(sellers) < size:
+        return sellers
+    
+    return sellers
+
 # Get seller statistics and analytics
 @router.get("/statistics", response_model=dict)
 async def get_seller_statistics(
