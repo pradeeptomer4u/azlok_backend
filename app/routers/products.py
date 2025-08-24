@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from sqlalchemy import or_, and_
+import uuid
 import json
+from datetime import datetime
+from sqlalchemy import or_, and_
 
 from .. import models, schemas
 from ..database import get_db, redis_client
@@ -100,15 +102,57 @@ async def create_product(
 async def read_products(
     skip: int = 0,
     limit: int = 100,
+    size: Optional[int] = None,
     category_id: Optional[int] = None,
+    is_featured: Optional[bool] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.Product).filter(models.Product.approval_status == models.ApprovalStatus.APPROVED)
     
+    # Apply category filter if provided
     if category_id:
         query = query.join(models.Product.categories).filter(models.Category.id == category_id)
     
+    # Apply featured filter if provided
+    # For now, we'll consider products with higher stock as featured
+    # In a real implementation, you might want to add a is_featured column to the Product model
+    if is_featured is not None:
+        if is_featured:
+            # For demonstration, we'll consider products with stock > 10 as featured
+            # This is a temporary solution until a proper is_featured field is added
+            query = query.filter(models.Product.stock_quantity > 10)
+    
+    # Use size parameter if provided, otherwise use limit
+    if size is not None:
+        limit = size
+    
     products = query.offset(skip).limit(limit).all()
+    
+    # Process products to handle JSON fields
+    for product in products:
+        # Parse image_urls from JSON string to list
+        if product.image_urls:
+            try:
+                product.image_urls = json.loads(product.image_urls)
+            except:
+                product.image_urls = []
+        else:
+            product.image_urls = []
+            
+        # Parse gst_details if present
+        if product.gst_details and isinstance(product.gst_details, str):
+            try:
+                product.gst_details = json.loads(product.gst_details)
+            except:
+                product.gst_details = {}
+                
+        # Handle seller's business_address if present
+        if product.seller and product.seller.business_address and isinstance(product.seller.business_address, str):
+            try:
+                product.seller.business_address = json.loads(product.seller.business_address)
+            except:
+                product.seller.business_address = {}
+    
     return products
 
 @router.get("/search", response_model=schemas.SearchResults)
