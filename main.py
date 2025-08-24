@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.routers import auth, users, products, categories, cart, admin, seller, seo, tax, logistics, payments, invoices, testimonials
+from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials
 
 app = FastAPI(
     title="Azlok Enterprises API",
@@ -29,7 +29,7 @@ app.include_router(cart.router, prefix="/api/cart", tags=["Cart"])
 # Orders router temporarily removed
 # app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
-app.include_router(seller.router, prefix="/api/seller", tags=["Seller"])
+app.include_router(seller_api.router, prefix="/api/seller", tags=["Seller API"])
 app.include_router(tax.router, prefix="/api/tax", tags=["Tax"])
 app.include_router(logistics.router, prefix="/api/logistics", tags=["Logistics"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
