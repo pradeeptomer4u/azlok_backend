@@ -84,6 +84,9 @@ async def create_product(
     db.commit()
     db.refresh(db_product)
     
+    # Invalidate products cache after creation
+    invalidate_products_cache()
+    
     # Store product in Redis for faster search
     product_data = {
         "id": db_product.id,
@@ -99,13 +102,18 @@ async def create_product(
     return db_product
 
 @router.get("/", response_model=List[schemas.Product])
+@cached(expire=300, key_prefix="products")  # Cache for 5 minutes
 async def read_products(
     skip: int = 0,
     limit: int = 100,
-    size: Optional[int] = None,
+    search: Optional[str] = None,
     category_id: Optional[int] = None,
-    is_featured: Optional[bool] = None,
-    is_bestseller: Optional[bool] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    sort_by: Optional[str] = None,
+    sort_order: Optional[str] = "asc",
+    approval_status: Optional[models.ApprovalStatus] = None,
+    seller_id: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.Product).filter(models.Product.approval_status == models.ApprovalStatus.APPROVED)
@@ -261,6 +269,7 @@ async def search_products(
     }
 
 @router.get("/{product_id}", response_model=schemas.Product)
+@cached(expire=600, key_prefix="products")  # Cache for 10 minutes
 async def read_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if product is None:
@@ -272,7 +281,7 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
         if current_user.id != product.seller_id and current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
             raise HTTPException(status_code=403, detail="Not enough permissions")
     
-    return product
+    return schemas.Product.from_orm(product)
 
 @router.put("/{product_id}", response_model=schemas.Product)
 async def update_product(
