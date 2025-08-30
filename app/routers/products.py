@@ -114,6 +114,9 @@ async def read_products(
     sort_order: Optional[str] = "asc",
     approval_status: Optional[models.ApprovalStatus] = None,
     seller_id: Optional[int] = None,
+    is_featured: Optional[bool] = None,
+    is_bestseller: Optional[bool] = None,
+    size: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.Product).filter(models.Product.approval_status == models.ApprovalStatus.APPROVED)
@@ -139,6 +142,29 @@ async def read_products(
             query = query.filter(models.Product.stock_quantity > 20)
             # Order by stock quantity descending to get the true bestsellers first
             query = query.order_by(models.Product.stock_quantity.desc())
+    
+    # Apply sorting if provided
+    if sort_by and not is_bestseller:  # Don't override bestseller sorting
+        if sort_by == "price":
+            if sort_order == "desc":
+                query = query.order_by(desc(models.Product.price))
+            else:
+                query = query.order_by(asc(models.Product.price))
+        elif sort_by == "rating":
+            if sort_order == "desc":
+                query = query.order_by(desc(models.Product.rating))
+            else:
+                query = query.order_by(asc(models.Product.rating))
+        elif sort_by == "name":
+            if sort_order == "desc":
+                query = query.order_by(desc(models.Product.name))
+            else:
+                query = query.order_by(asc(models.Product.name))
+        elif sort_by == "created_at":
+            if sort_order == "desc":
+                query = query.order_by(desc(models.Product.created_at))
+            else:
+                query = query.order_by(asc(models.Product.created_at))
     
     # Use size parameter if provided, otherwise use limit
     if size is not None:
