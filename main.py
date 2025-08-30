@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import logging
 import sys
+import asyncio
+import os
 
 # Configure logging
 logging.basicConfig(
@@ -15,6 +17,7 @@ logging.basicConfig(
 
 from app.database import get_db
 from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials
+from app.utils.keep_alive import start_keep_alive
 
 app = FastAPI(
     title="Azlok Enterprises API",
@@ -57,7 +60,21 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "timestamp": asyncio.get_event_loop().time()}
+
+# Keep-alive background task
+@app.on_event("startup")
+async def startup_event():
+    # Only start the keep-alive service if we're in production (on Render)
+    if os.getenv("RENDER", "false").lower() == "true":
+        # Start the keep-alive service in the background
+        asyncio.create_task(start_keep_alive())
+        logging.info("Keep-alive service started")
+
+# Graceful shutdown
+@app.on_event("shutdown")
+async def shutdown_event():
+    logging.info("Application shutting down")
 
 if __name__ == "__main__":
     import uvicorn
