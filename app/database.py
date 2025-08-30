@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
@@ -57,8 +57,8 @@ def get_db():
     for attempt in range(max_retries):
         db = SessionLocal()
         try:
-            # Test the connection
-            db.execute("SELECT 1")
+            # Test the connection with proper text() wrapper
+            db.execute(text("SELECT 1"))
             yield db
             break
         except Exception as e:
