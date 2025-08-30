@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 DATABASE_URL = "postgresql://neondb_owner:npg_Y0WE8ibnFjge@ep-empty-glade-a1mnqsgm-pooler.ap-southeast-1.aws.neon.tech/azlok_shopping?sslmode=require&channel_binding=require"
 
 # Redis connection
-REDIS_URL = "redis://red-d2hf7madbo4c73b07d80:6379"
+REDIS_URL = "rediss://red-d2hf7madbo4c73b07d80:plrHFkfAEWLT2nptLACkfMdDkXWs27Pj@singapore-keyvalue.render.com:6379"
 
 # Create SQLAlchemy engine with connection pooling
 engine = create_engine(

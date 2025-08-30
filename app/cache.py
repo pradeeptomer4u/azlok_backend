@@ -1,58 +1,85 @@
 import redis
 import json
 import os
+import logging
 from typing import Optional, Any
 from functools import wraps
 import asyncio
 from datetime import timedelta
 
-# Redis configuration
-REDIS_URL = os.getenv('REDIS_URL', 'redis://red-d2hf7madbo4c73b07d80:6379')
+# Configure logging
+logger = logging.getLogger(__name__)
 
-# Initialize Redis client
-redis_client = redis.from_url(REDIS_URL, decode_responses=True)
+# Redis configuration
+REDIS_URL = os.getenv('REDIS_URL', 'rediss://red-d2hf7madbo4c73b07d80:plrHFkfAEWLT2nptLACkfMdDkXWs27Pj@singapore-keyvalue.render.com:6379')
+REDIS_ENABLED = os.getenv('REDIS_ENABLED', 'true').lower() == 'true'
+
+# Initialize Redis client with fault tolerance
+redis_client = None
+if REDIS_ENABLED:
+    try:
+        redis_client = redis.from_url(REDIS_URL, decode_responses=True, socket_connect_timeout=2.0)
+        # Test connection
+        redis_client.ping()
+        logger.info("Redis connection established successfully")
+    except Exception as e:
+        logger.warning(f"Redis connection failed: {e}. Caching will be disabled.")
+        redis_client = None
 
 class RedisCache:
     def __init__(self):
         self.client = redis_client
+        self.enabled = self.client is not None
         
     def get(self, key: str) -> Optional[Any]:
         """Get value from Redis cache"""
+        if not self.enabled:
+            return None
+            
         try:
             value = self.client.get(key)
             if value:
                 return json.loads(value)
             return None
         except Exception as e:
-            print(f"Redis get error: {e}")
+            logger.warning(f"Redis get error: {e}")
             return None
     
     def set(self, key: str, value: Any, expire: int = 300) -> bool:
         """Set value in Redis cache with expiration (default 5 minutes)"""
+        if not self.enabled:
+            return False
+            
         try:
             serialized_value = json.dumps(value, default=str)
             return self.client.setex(key, expire, serialized_value)
         except Exception as e:
-            print(f"Redis set error: {e}")
+            logger.warning(f"Redis set error: {e}")
             return False
     
     def delete(self, key: str) -> bool:
         """Delete key from Redis cache"""
+        if not self.enabled:
+            return False
+            
         try:
             return bool(self.client.delete(key))
         except Exception as e:
-            print(f"Redis delete error: {e}")
+            logger.warning(f"Redis delete error: {e}")
             return False
     
     def clear_pattern(self, pattern: str) -> int:
         """Clear all keys matching pattern"""
+        if not self.enabled:
+            return 0
+            
         try:
             keys = self.client.keys(pattern)
             if keys:
                 return self.client.delete(*keys)
             return 0
         except Exception as e:
-            print(f"Redis clear pattern error: {e}")
+            logger.warning(f"Redis clear pattern error: {e}")
             return 0
 
 # Global cache instance
@@ -119,16 +146,28 @@ def cached(expire: int = 300, key_prefix: str = ""):
 # Cache invalidation helpers
 def invalidate_categories_cache():
     """Invalidate all category-related cache"""
-    cache.clear_pattern("categories:*")
+    try:
+        cache.clear_pattern("categories:*")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate categories cache: {e}")
 
 def invalidate_products_cache():
     """Invalidate all product-related cache"""
-    cache.clear_pattern("products:*")
+    try:
+        cache.clear_pattern("products:*")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate products cache: {e}")
 
 def invalidate_product_cache(product_id: int):
     """Invalidate specific product cache"""
-    cache.clear_pattern(f"products:*:{product_id}:*")
+    try:
+        cache.clear_pattern(f"products:*:{product_id}:*")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate product cache for ID {product_id}: {e}")
 
 def invalidate_category_cache(category_id: int):
     """Invalidate specific category cache"""
-    cache.clear_pattern(f"categories:*:{category_id}:*")
+    try:
+        cache.clear_pattern(f"categories:*:{category_id}:*")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate category cache for ID {category_id}: {e}")

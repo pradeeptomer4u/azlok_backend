@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, desc, asc
 from typing import List, Optional, Dict
 from datetime import datetime
+import logging
 
 from .. import models, schemas
 from ..database import get_db
@@ -64,7 +65,14 @@ async def create_category(
         "description": db_category.description,
         "parent_id": db_category.parent_id
     }
-    redis_client.hset(f"category:{db_category.id}", mapping=category_data)
+    
+    # Safely update Redis if available
+    if redis_client is not None:
+        try:
+            redis_client.hset(f"category:{db_category.id}", mapping=category_data)
+        except Exception as e:
+            # Log error but continue - Redis is optional
+            logging.warning(f"Failed to store category in Redis: {e}")
     
     return db_category
 
@@ -155,7 +163,14 @@ async def update_category(
         "description": db_category.description,
         "parent_id": db_category.parent_id
     }
-    redis_client.hset(f"category:{db_category.id}", mapping=category_data)
+    
+    # Safely update Redis if available
+    if redis_client is not None:
+        try:
+            redis_client.hset(f"category:{db_category.id}", mapping=category_data)
+        except Exception as e:
+            # Log error but continue - Redis is optional
+            logging.warning(f"Failed to update category in Redis: {e}")
     
     return db_category
 
@@ -185,7 +200,12 @@ async def delete_category(
         raise HTTPException(status_code=400, detail="Cannot delete category with products")
     
     # Delete category from Redis
-    redis_client.delete(f"category:{db_category.id}")
+    if redis_client is not None:
+        try:
+            redis_client.delete(f"category:{db_category.id}")
+        except Exception as e:
+            # Log error but continue - Redis is optional
+            logging.warning(f"Failed to delete category from Redis: {e}")
     
     # Delete category from database
     db.delete(db_category)

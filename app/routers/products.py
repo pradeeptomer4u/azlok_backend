@@ -4,6 +4,7 @@ from sqlalchemy import func, desc, asc, or_, and_
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import json
+import logging
 
 from .. import models, schemas
 from ..database import get_db
@@ -397,7 +398,14 @@ async def update_product(
         "price": db_product.price,
         "categories": [c.id for c in db_product.categories]
     }
-    redis_client.hset(f"product:{db_product.id}", mapping=product_data)
+    
+    # Safely update Redis if available
+    if redis_client is not None:
+        try:
+            redis_client.hset(f"product:{db_product.id}", mapping=product_data)
+        except Exception as e:
+            # Log error but continue - Redis is optional
+            logging.warning(f"Failed to update product in Redis: {e}")
     
     return db_product
 
@@ -416,7 +424,12 @@ async def delete_product(
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Delete product from Redis
-    redis_client.delete(f"product:{db_product.id}")
+    if redis_client is not None:
+        try:
+            redis_client.delete(f"product:{db_product.id}")
+        except Exception as e:
+            # Log error but continue - Redis is optional
+            logging.warning(f"Failed to delete product from Redis: {e}")
     
     # Delete product from database
     db.delete(db_product)
