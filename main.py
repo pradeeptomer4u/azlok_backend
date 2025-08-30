@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import logging
 import sys
-import asyncio
 import os
 
 # Configure logging
@@ -60,7 +59,9 @@ def read_root():
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "timestamp": asyncio.get_event_loop().time()}
+    # Use datetime instead of asyncio.get_event_loop() to avoid event loop errors
+    from datetime import datetime
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 # Keep-alive background task
 @app.on_event("startup")
@@ -68,6 +69,7 @@ async def startup_event():
     # Only start the keep-alive service if we're in production (on Render)
     if os.getenv("RENDER", "false").lower() == "true":
         # Start the keep-alive service in the background
+        import asyncio
         asyncio.create_task(start_keep_alive())
         logging.info("Keep-alive service started")
 
