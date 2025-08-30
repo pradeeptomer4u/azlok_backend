@@ -297,6 +297,9 @@ async def search_products(
 @router.get("/{product_id}", response_model=schemas.Product)
 @cached(expire=600, key_prefix="products")  # Cache for 10 minutes
 async def read_product(product_id: int, db: Session = Depends(get_db)):
+    # Invalidate the cache for this product to ensure we get fresh data
+    invalidate_product_cache(product_id)
+    
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -306,6 +309,29 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
         current_user = await get_current_active_user()
         if current_user.id != product.seller_id and current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
             raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    # Parse image_urls from JSON string to list
+    if product.image_urls:
+        try:
+            product.image_urls = json.loads(product.image_urls)
+        except:
+            product.image_urls = []
+    else:
+        product.image_urls = []
+        
+    # Parse gst_details if present
+    if product.gst_details and isinstance(product.gst_details, str):
+        try:
+            product.gst_details = json.loads(product.gst_details)
+        except:
+            product.gst_details = {}
+            
+    # Handle seller's business_address if present
+    if product.seller and product.seller.business_address and isinstance(product.seller.business_address, str):
+        try:
+            product.seller.business_address = json.loads(product.seller.business_address)
+        except:
+            product.seller.business_address = {}
     
     return schemas.Product.from_orm(product)
 
