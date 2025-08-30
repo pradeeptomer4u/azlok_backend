@@ -1,6 +1,17 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+import logging
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 from app.database import get_db
 from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials
@@ -9,6 +20,7 @@ app = FastAPI(
     title="Azlok Enterprises API",
     description="API for Azlok Enterprises E-commerce Platform",
     version="1.0.0",
+    debug=True
 )
 
 # Configure CORS

@@ -1,16 +1,30 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from typing import List
+import logging
+import traceback
 
 from .. import models, schemas
 from ..database import get_db
 from .auth import get_current_active_user, get_password_hash
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 @router.get("/me", response_model=schemas.User)
-async def read_users_me(current_user: schemas.User = Depends(get_current_active_user)):
-    return current_user
+async def read_users_me(request: Request, current_user: schemas.User = Depends(get_current_active_user)):
+    try:
+        logger.debug(f"Accessing /me endpoint with token: {request.headers.get('authorization')[:20]}...")
+        logger.debug(f"Current user data: {current_user}")
+        return current_user
+    except Exception as e:
+        logger.error(f"Error in /me endpoint: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
+        )
 
 @router.put("/me", response_model=schemas.User)
 async def update_user_me(
