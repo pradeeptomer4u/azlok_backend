@@ -350,7 +350,6 @@ async def delete_margin_setting(
 @router.post("/calculate-tax", response_model=Dict)
 async def calculate_tax(
     tax_request: schemas.TaxCalculationRequest,
-    current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     # Get product
@@ -362,16 +361,8 @@ async def calculate_tax(
     # Get applicable tax rate
     tax_rate = None
     
-    # First try to find product-specific tax rate via HSN code
-    if product.hsn_code:
-        tax_rate = db.query(models.TaxRate).filter(
-            models.TaxRate.is_active == True,
-            models.TaxRate.tax_type == models.TaxType.GST,
-            func.lower(models.TaxRate.hsn_code) == func.lower(product.hsn_code)
-        ).first()
-    
-    # If not found, try to find category-specific tax rate
-    if not tax_rate and product.categories:
+    # Try to find category-specific tax rate
+    if product.categories:
         category_ids = [category.id for category in product.categories]
         tax_rate = db.query(models.TaxRate).filter(
             models.TaxRate.is_active == True,
@@ -481,7 +472,6 @@ async def calculate_order_tax(
                 buyer_state=order_request.buyer_state,
                 seller_state=seller_state
             ),
-            current_user,
             db
         )
         

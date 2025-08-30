@@ -63,7 +63,7 @@ def generate_invoice(
         order_id=order_id,
         user_id=order.user_id,
         # For B2C, we don't need a specific seller_id as it's the platform selling to consumers
-        # seller_id can be set for B2B scenarios where specific sellers fulfill orders
+        # seller_id can be set for B2C scenarios where specific sellers fulfill orders
         
         # Set due date to 15 days from now
         due_date=datetime.now() + timedelta(days=15),

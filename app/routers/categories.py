@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
-from sqlalchemy import func
+from sqlalchemy import func, desc, asc
+from typing import List, Optional, Dict
+from datetime import datetime
 
 from .. import models, schemas
-from ..database import get_db, redis_client
+from ..database import get_db
 from .auth import get_current_active_user
+from ..cache import cached, invalidate_categories_cache
 
 router = APIRouter()
 
@@ -64,25 +66,26 @@ async def create_category(
     return db_category
 
 @router.get("/", response_model=List[schemas.Category])
+@cached(expire=600, key_prefix="categories")  # Cache for 10 minutes
 async def read_categories(
     skip: int = 0,
     limit: int = 100,
-    parent_id: Optional[int] = None,
+    parent_id: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
-    # Get categories with optional parent filter
     query = db.query(models.Category)
     
     if parent_id is not None:
         query = query.filter(models.Category.parent_id == parent_id)
     else:
-        # If no parent_id is specified, return top-level categories (parent_id is None)
-        query = query.filter(models.Category.parent_id == None)
+        # If no parent_id specified, return top-level categories (parent_id is None)
+        query = query.filter(models.Category.parent_id.is_(None))
     
     categories = query.offset(skip).limit(limit).all()
-    return categories
+    return [schemas.Category.from_orm(cat) for cat in categories]
 
 @router.get("/all", response_model=List[schemas.Category])
+@cached(expire=600, key_prefix="categories")  # Cache for 10 minutes
 async def read_all_categories(
     skip: int = 0,
     limit: int = 100,
@@ -90,7 +93,7 @@ async def read_all_categories(
 ):
     # Get all categories regardless of parent
     categories = db.query(models.Category).offset(skip).limit(limit).all()
-    return categories
+    return [schemas.Category.from_orm(cat) for cat in categories]
 
 @router.get("/{category_id}", response_model=schemas.Category)
 async def read_category(category_id: int, db: Session = Depends(get_db)):
