@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
 from sqlalchemy.orm import Session
-from typing import List, Optional
-import uuid
-import json
+from sqlalchemy import func, desc, asc, or_, and_
+from typing import List, Optional, Dict, Any
 from datetime import datetime
-from sqlalchemy import or_, and_
+import json
 
 from .. import models, schemas
-from ..database import get_db, redis_client
+from ..database import get_db
 from .auth import get_current_active_user
+from ..cache import cached, invalidate_products_cache, invalidate_product_cache
 
 router = APIRouter()
 

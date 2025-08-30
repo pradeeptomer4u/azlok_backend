@@ -53,6 +53,9 @@ async def create_category(
     db.commit()
     db.refresh(db_category)
     
+    # Invalidate categories cache after creation
+    invalidate_categories_cache()
+    
     # Store category in Redis for faster access
     category_data = {
         "id": db_category.id,
@@ -96,11 +99,12 @@ async def read_all_categories(
     return [schemas.Category.from_orm(cat) for cat in categories]
 
 @router.get("/{category_id}", response_model=schemas.Category)
+@cached(expire=600, key_prefix="categories")  # Cache for 10 minutes
 async def read_category(category_id: int, db: Session = Depends(get_db)):
     category = db.query(models.Category).filter(models.Category.id == category_id).first()
     if category is None:
         raise HTTPException(status_code=404, detail="Category not found")
-    return category
+    return schemas.Category.from_orm(category)
 
 @router.put("/{category_id}", response_model=schemas.Category)
 async def update_category(
