@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, Field, validator, model_validator
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
+import json
 
 # Enums
 class UserRole(str, Enum):
@@ -111,6 +112,24 @@ class UserInDB(UserBase):
 
     class Config:
         from_attributes = True
+        
+    @validator('business_address', pre=True)
+    def parse_business_address(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return None
+        return v
+        
+    @validator('bank_details', pre=True)
+    def parse_bank_details(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return None
+        return v
 
 class User(UserInDB):
     pass
