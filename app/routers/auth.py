@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 SECRET_KEY = "VJn8XqmoWSJZIZu6xQD6T4UfAtvgVnyO"  # In production, use a secure key and store in environment variables
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
