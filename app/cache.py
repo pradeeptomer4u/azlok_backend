@@ -18,7 +18,14 @@ REDIS_ENABLED = os.getenv('REDIS_ENABLED', 'true').lower() == 'true'
 redis_client = None
 if REDIS_ENABLED:
     try:
-        redis_client = redis.from_url(REDIS_URL, decode_responses=True, socket_connect_timeout=2.0)
+        # Configure Redis with SSL support for rediss:// URLs
+        ssl_enabled = REDIS_URL.startswith('rediss://')
+        redis_client = redis.from_url(
+            REDIS_URL, 
+            decode_responses=True, 
+            socket_connect_timeout=5.0,
+            ssl=ssl_enabled
+        )
         # Test connection
         redis_client.ping()
         logger.info("Redis connection established successfully")

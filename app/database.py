@@ -47,7 +47,21 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # Redis client
-redis_client = redis.from_url(REDIS_URL)
+try:
+    # Configure Redis with SSL support for rediss:// URLs
+    ssl_enabled = REDIS_URL.startswith('rediss://')
+    redis_client = redis.from_url(
+        REDIS_URL, 
+        decode_responses=True,
+        socket_connect_timeout=5.0,
+        ssl=ssl_enabled
+    )
+    # Test connection
+    redis_client.ping()
+    logger.info("Redis connection established successfully")
+except Exception as e:
+    logger.warning(f"Redis connection failed: {e}. Caching will be disabled.")
+    redis_client = None
 
 # Dependency to get DB session with retry logic
 def get_db():
