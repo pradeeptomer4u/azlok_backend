@@ -365,7 +365,12 @@ async def update_product(
         db_product.stock_quantity = product_update.stock_quantity
     
     if product_update.image_urls is not None:
+        # Store as JSON string but ensure it's properly serialized
         db_product.image_urls = json.dumps(product_update.image_urls)
+    
+    if product_update.gst_details is not None:
+        # Store as JSON but ensure it's properly serialized
+        db_product.gst_details = product_update.gst_details.dict() if hasattr(product_update.gst_details, 'dict') else product_update.gst_details
     
     # Only admins and company personnel can update approval status
     if product_update.approval_status is not None and current_user.role in [models.UserRole.ADMIN, models.UserRole.COMPANY]:

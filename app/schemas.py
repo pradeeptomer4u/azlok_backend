@@ -236,6 +236,36 @@ class ProductInDB(ProductBase):
 
     class Config:
         from_attributes = True
+        
+    @validator('image_urls', pre=True)
+    def parse_image_urls(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return []
+        return v or []
+        
+    @validator('gst_details', pre=True)
+    def parse_gst_details(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return {}
+        return v or {}
+
+    def dict(self, *args, **kwargs):
+        data = super().dict(*args, **kwargs)
+        data['image_urls'] = json.dumps(data['image_urls'])
+        data['gst_details'] = json.dumps(data['gst_details'])
+        return data
+
+    @classmethod
+    def parse_obj(cls, obj):
+        obj['image_urls'] = json.loads(obj['image_urls'])
+        obj['gst_details'] = json.loads(obj['gst_details'])
+        return super().parse_obj(obj)
 
 class Product(ProductInDB):
     seller: User
