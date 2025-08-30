@@ -8,7 +8,7 @@ import json
 from .. import models, schemas
 from ..database import get_db
 from .auth import get_current_active_user
-from ..cache import cached, invalidate_products_cache, invalidate_product_cache
+from ..cache import cached, invalidate_products_cache, invalidate_product_cache, redis_client
 
 router = APIRouter()
 
