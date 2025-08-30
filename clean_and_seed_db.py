@@ -171,7 +171,7 @@ def create_admin_user(db: Session):
     
     # Check if admin already exists
     existing_admin = db.query(models.User).filter(
-        (models.User.email == admin_email) | (models.User.username == admin_username)
+        models.User.email == admin_email
     ).first()
     
     if not existing_admin:

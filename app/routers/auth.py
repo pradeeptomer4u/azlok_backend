@@ -29,7 +29,10 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 def authenticate_user(db: Session, username: str, password: str):
+    # Try to find user by username first, then by email
     user = db.query(models.User).filter(models.User.username == username).first()
+    if not user:
+        user = db.query(models.User).filter(models.User.email == username).first()
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
