@@ -7,7 +7,7 @@ from datetime import datetime
 from .. import models, schemas
 from ..database import get_db
 from .auth import get_current_active_user
-from ..cache import cached, invalidate_categories_cache
+from ..cache import cached, invalidate_categories_cache, redis_client
 
 router = APIRouter()
 

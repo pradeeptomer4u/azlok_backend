@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import logging
 import traceback
 
@@ -80,6 +80,7 @@ async def read_user(
 async def read_users(
     skip: int = 0,
     limit: int = 100,
+    role: Optional[str] = Query(None, description="Filter users by role (e.g., 'seller', 'buyer', 'admin')"),
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -87,5 +88,19 @@ async def read_users(
     if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
-    users = db.query(models.User).offset(skip).limit(limit).all()
+    # Start with base query
+    query = db.query(models.User)
+    
+    # Apply role filter if provided
+    if role:
+        try:
+            # Convert string role to enum value
+            role_enum = models.UserRole[role.upper()]
+            query = query.filter(models.User.role == role_enum)
+        except KeyError:
+            # If invalid role provided, return empty list
+            return []
+    
+    # Apply pagination
+    users = query.offset(skip).limit(limit).all()
     return users
