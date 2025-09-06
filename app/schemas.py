@@ -966,3 +966,61 @@ class Seller(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+# Blog schemas
+class BlogBase(BaseModel):
+    title: str
+    content: str
+    excerpt: Optional[str] = None
+    featured_image: Optional[str] = None
+    status: str = "draft"  # draft, published, archived
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    tags: Optional[List[str]] = None
+
+
+class BlogCreate(BlogBase):
+    slug: Optional[str] = None
+    published_date: Optional[datetime] = None
+    featured_product_ids: Optional[List[int]] = None
+
+
+class BlogUpdate(BaseModel):
+    title: Optional[str] = None
+    slug: Optional[str] = None
+    content: Optional[str] = None
+    excerpt: Optional[str] = None
+    featured_image: Optional[str] = None
+    status: Optional[str] = None
+    published_date: Optional[datetime] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    tags: Optional[List[str]] = None
+    featured_product_ids: Optional[List[int]] = None
+
+
+class BlogInDB(BlogBase):
+    id: int
+    slug: str
+    author_id: int
+    published_date: Optional[datetime] = None
+    views_count: int = 0
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class Blog(BlogInDB):
+    author: User
+    featured_products: List[Product] = []
+
+
+class BlogListResponse(BaseModel):
+    blogs: List[Blog]
+    total: int
+    page: int
+    size: int
+    pages: int

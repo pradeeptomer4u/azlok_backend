@@ -178,3 +178,11 @@ def invalidate_category_cache(category_id: int):
         cache.clear_pattern(f"categories:*:{category_id}:*")
     except Exception as e:
         logger.warning(f"Failed to invalidate category cache for ID {category_id}: {e}")
+
+
+def invalidate_blog_cache():
+    """Invalidate all category-related cache"""
+    try:
+        cache.clear_pattern("blogs:*")
+    except Exception as e:
+        logger.warning(f"Failed to invalidate blogs cache: {e}")

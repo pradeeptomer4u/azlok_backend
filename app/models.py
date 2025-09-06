@@ -589,3 +589,38 @@ class Testimonial(Base):
     
     # Relationships
     user = relationship("User", back_populates="testimonials")
+
+
+# Association table for blog featured products (many-to-many)
+blog_product = Table(
+    "blog_product",
+    Base.metadata,
+    Column("blog_id", Integer, ForeignKey("blogs.id"), primary_key=True),
+    Column("product_id", Integer, ForeignKey("products.id"), primary_key=True)
+)
+
+
+class Blog(Base):
+    """Blog model for storing blog posts"""
+    __tablename__ = "blogs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False, index=True)
+    slug = Column(String, unique=True, index=True)
+    content = Column(Text, nullable=False)  # HTML content
+    excerpt = Column(Text, nullable=True)  # Short description for previews
+    featured_image = Column(String, nullable=True)  # URL to featured image
+    author_id = Column(Integer, ForeignKey("users.id"))
+    status = Column(String, default="draft")  # draft, published, archived
+    published_date = Column(DateTime(timezone=True), nullable=True)
+    meta_title = Column(String, nullable=True)  # For SEO
+    meta_description = Column(String, nullable=True)  # For SEO
+    tags = Column(JSON, nullable=True)  # Array of tags
+    views_count = Column(Integer, default=0)  # Number of views
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    author = relationship("User", backref="blogs")
+    featured_products = relationship("Product", secondary=blog_product, backref="featured_in_blogs")
+

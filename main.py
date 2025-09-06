@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 
 from app.database import get_db
-from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials
+from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials, blogs
 from app.utils.keep_alive import start_keep_alive
 
 app = FastAPI(
@@ -49,6 +49,7 @@ app.include_router(logistics.router, prefix="/api/logistics", tags=["Logistics"]
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(invoices.router, prefix="/api/invoices", tags=["Invoices"])
 app.include_router(testimonials.router, prefix="/api/testimonials", tags=["Testimonials"])
+app.include_router(blogs.router, prefix="/api/blogs", tags=["Blogs"])
 
 # SEO router - no prefix as these are root-level endpoints
 app.include_router(seo.router, tags=["SEO"])
