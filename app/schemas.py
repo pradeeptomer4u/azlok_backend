@@ -186,6 +186,8 @@ class ProductCreate(ProductBase):
     sku: Optional[str] = None
     category_ids: List[int] = []
     gst_details: Optional[GSTDetails] = None
+    features: Optional[List[str]] = None
+    specifications: Optional[List[Dict[str, str]]] = None
     
     @model_validator(mode='before')
     def calculate_price(cls, data):
@@ -212,6 +214,8 @@ class ProductUpdate(BaseModel):
     is_tax_inclusive: Optional[bool] = None
     gst_details: Optional[GSTDetails] = None
     approval_status: Optional[ApprovalStatus] = None
+    features: Optional[List[str]] = None
+    specifications: Optional[List[Dict[str, str]]] = None
     
     @model_validator(mode='before')
     def update_price(cls, data):
@@ -229,6 +233,8 @@ class ProductInDB(ProductBase):
     sku: str
     seller_id: int
     gst_details: Optional[Dict[str, Any]] = None
+    features: Optional[List[str]] = None
+    specifications: Optional[List[Dict[str, str]]] = None
     approval_status: ApprovalStatus
     approved_by: Optional[int] = None
     created_at: datetime

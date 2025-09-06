@@ -139,6 +139,8 @@ class Product(Base):
     tax_rate = Column(Float, default=0.0)  # Default tax rate for the product
     is_tax_inclusive = Column(Boolean, default=False)  # Whether price includes tax
     gst_details = Column(JSON, nullable=True)  # JSON with GST details
+    features = Column(JSON, nullable=True)  # JSON array of feature strings
+    specifications = Column(JSON, nullable=True)  # JSON array of specification objects
     approval_status = Column(Enum(ApprovalStatus), default=ApprovalStatus.PENDING)
     approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

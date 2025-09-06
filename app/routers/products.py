@@ -57,6 +57,17 @@ async def create_product(
     if existing_sku:
         raise HTTPException(status_code=400, detail="Product with this SKU already exists")
     
+    # Prepare gst_details with features and specifications
+    gst_details = {}
+    if product.gst_details:
+        gst_details = product.gst_details.dict() if hasattr(product.gst_details, 'dict') else product.gst_details
+    
+    # Add features and specifications to gst_details
+    if product.features:
+        gst_details['features'] = product.features
+    if product.specifications:
+        gst_details['specifications'] = product.specifications
+    
     # Create product
     db_product = models.Product(
         name=product.name,
@@ -67,6 +78,7 @@ async def create_product(
         stock_quantity=product.stock_quantity,
         image_urls=json.dumps(product.image_urls),
         seller_id=current_user.id,
+        gst_details=json.dumps(gst_details) if gst_details else None,
         approval_status=models.ApprovalStatus.PENDING if current_user.role == models.UserRole.SELLER else models.ApprovalStatus.APPROVED,
         approved_by=None if current_user.role == models.UserRole.SELLER else current_user.id
     )
@@ -187,9 +199,27 @@ async def read_products(
         # Parse gst_details if present
         if product.gst_details and isinstance(product.gst_details, str):
             try:
-                product.gst_details = json.loads(product.gst_details)
+                gst_data = json.loads(product.gst_details)
+                product.gst_details = gst_data
+                
+                # Extract features from gst_details
+                if 'features' in gst_data:
+                    product.features = gst_data['features']
+                else:
+                    product.features = []
+                
+                # Extract specifications from gst_details
+                if 'specifications' in gst_data:
+                    product.specifications = gst_data['specifications']
+                else:
+                    product.specifications = []
             except:
                 product.gst_details = {}
+                product.features = []
+                product.specifications = []
+        else:
+            product.features = []
+            product.specifications = []
                 
         # Handle seller's business_address if present
         if product.seller and product.seller.business_address and isinstance(product.seller.business_address, str):
@@ -323,9 +353,23 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
     # Parse gst_details if present
     if product.gst_details and isinstance(product.gst_details, str):
         try:
-            product.gst_details = json.loads(product.gst_details)
+            gst_data = json.loads(product.gst_details)
+            product.gst_details = gst_data
+            
+            # Extract features from gst_details
+            if 'features' in gst_data:
+                product.features = gst_data['features']
+            
+            # Extract specifications from gst_details
+            if 'specifications' in gst_data:
+                product.specifications = gst_data['specifications']
         except:
             product.gst_details = {}
+            product.features = []
+            product.specifications = []
+    else:
+        product.features = []
+        product.specifications = []
             
     # Handle seller's business_address if present
     if product.seller and product.seller.business_address and isinstance(product.seller.business_address, str):
@@ -368,9 +412,40 @@ async def update_product(
         # Store as JSON string but ensure it's properly serialized
         db_product.image_urls = json.dumps(product_update.image_urls)
     
+    # Initialize gst_details if it doesn't exist
+    if db_product.gst_details is None:
+        db_product.gst_details = {}
+    elif isinstance(db_product.gst_details, str):
+        try:
+            db_product.gst_details = json.loads(db_product.gst_details)
+        except json.JSONDecodeError:
+            db_product.gst_details = {}
+            
+    # Update GST details if provided
     if product_update.gst_details is not None:
-        # Store as JSON but ensure it's properly serialized
-        db_product.gst_details = product_update.gst_details.dict() if hasattr(product_update.gst_details, 'dict') else product_update.gst_details
+        gst_data = product_update.gst_details.dict() if hasattr(product_update.gst_details, 'dict') else product_update.gst_details
+        if isinstance(db_product.gst_details, dict):
+            db_product.gst_details.update(gst_data)
+        else:
+            db_product.gst_details = gst_data
+            
+    # Store features in gst_details if provided
+    if product_update.features is not None:
+        if isinstance(db_product.gst_details, dict):
+            db_product.gst_details['features'] = product_update.features
+        else:
+            db_product.gst_details = {'features': product_update.features}
+            
+    # Store specifications in gst_details if provided
+    if product_update.specifications is not None:
+        if isinstance(db_product.gst_details, dict):
+            db_product.gst_details['specifications'] = product_update.specifications
+        else:
+            db_product.gst_details = {'specifications': product_update.specifications}
+            
+    # Ensure gst_details is stored as JSON
+    if isinstance(db_product.gst_details, dict):
+        db_product.gst_details = json.dumps(db_product.gst_details)
     
     # Only admins and company personnel can update approval status
     if product_update.approval_status is not None and current_user.role in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
