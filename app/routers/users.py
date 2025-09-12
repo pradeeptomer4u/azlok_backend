@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 import logging
 import traceback
+from datetime import datetime
 
 from .. import models, schemas
 from ..database import get_db
-from .auth import get_current_active_user, get_password_hash
+from .auth import get_current_active_user, get_password_hash, verify_password
 
 logger = logging.getLogger(__name__)
 
@@ -104,3 +105,122 @@ async def read_users(
     # Apply pagination
     users = query.offset(skip).limit(limit).all()
     return users
+
+@router.post("/delete-request", response_model=dict)
+async def request_account_deletion(
+    request_data: dict,
+    current_user: schemas.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Submit a request to delete a user account.
+    The request will be processed by administrators within 30 days.
+    """
+    # Verify the user's password
+    if not verify_password(request_data.get("password", ""), current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password"
+        )
+    
+    # Create a new deletion request
+    # Since we don't have a dedicated model for deletion requests,
+    # we'll update the user's metadata to include the deletion request
+    user_db = db.query(models.User).filter(models.User.id == current_user.id).first()
+    
+    # Initialize meta_data if it doesn't exist
+    if not user_db.meta_data:
+        user_db.meta_data = {}
+    
+    # Add deletion request to meta_data
+    user_db.meta_data["deletion_request"] = {
+        "reason": request_data.get("reason", "No reason provided"),
+        "requested_at": datetime.utcnow().isoformat(),
+        "status": "pending"
+    }
+    
+    db.commit()
+    
+    return {"message": "Account deletion request submitted successfully"}
+
+@router.get("/deletion-requests", response_model=List[dict])
+async def get_deletion_requests(
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(get_current_active_user)
+):
+    """
+    Get all account deletion requests (admin only).
+    """
+    if current_user.role != models.UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this resource"
+        )
+    
+    # Find all users with deletion requests
+    users_with_requests = db.query(models.User).filter(
+        models.User.meta_data.has_key("deletion_request")
+    ).all()
+    
+    deletion_requests = []
+    for user in users_with_requests:
+        if user.meta_data and "deletion_request" in user.meta_data:
+            request = user.meta_data["deletion_request"]
+            deletion_requests.append({
+                "user_id": user.id,
+                "user_email": user.email,
+                "user_name": user.full_name,
+                "reason": request.get("reason", "No reason provided"),
+                "requested_at": request.get("requested_at"),
+                "status": request.get("status", "pending"),
+                "processed_at": request.get("processed_at"),
+                "processed_by": request.get("processed_by")
+            })
+    
+    return deletion_requests
+
+@router.put("/deletion-requests/{user_id}/approve")
+async def approve_deletion_request(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(get_current_active_user)
+):
+    """
+    Approve an account deletion request (admin only).
+    """
+    if current_user.role != models.UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this resource"
+        )
+    
+    # Get the user to delete
+    user_to_delete = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user_to_delete:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Check if there's a deletion request
+    if not user_to_delete.meta_data or "deletion_request" not in user_to_delete.meta_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Deletion request not found"
+        )
+    
+    # Update the request status
+    user_to_delete.meta_data["deletion_request"]["status"] = "approved"
+    user_to_delete.meta_data["deletion_request"]["processed_at"] = datetime.utcnow().isoformat()
+    user_to_delete.meta_data["deletion_request"]["processed_by"] = current_user.id
+    
+    # Anonymize the user data instead of deleting
+    user_to_delete.email = f"deleted_user_{user_to_delete.id}@deleted.com"
+    user_to_delete.username = f"deleted_user_{user_to_delete.id}"
+    user_to_delete.full_name = "Deleted User"
+    user_to_delete.phone = None
+    user_to_delete.is_active = False
+    
+    db.commit()
+    
+    return {"message": "Account deletion request approved and user data anonymized"}
