@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.get("/", response_model=List[PaymentMethodSchema])
 async def get_payment_methods(
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ):
     """Get all payment methods for the current user"""
     # Get all active payment methods for the current user
