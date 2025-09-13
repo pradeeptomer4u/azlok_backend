@@ -14,15 +14,20 @@ router = APIRouter()
 
 @router.get("/", response_model=List[PaymentMethodSchema])
 async def get_payment_methods(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    """Get all payment methods for the current user"""
-    # Get all active payment methods for the current user
-    user_payment_methods = db.query(PaymentMethod).filter(
+    """Get all payment methods for the current user for checkout"""
+    # Get payment methods for checkout
+    # First get user-specific payment methods
+    
+    # Then get system-wide payment methods (those with user_id = None)
+    system_payment_methods = db.query(PaymentMethod).filter(
+        PaymentMethod.user_id == None,
         PaymentMethod.is_active == True
     ).all()
     
-    return user_payment_methods
+    
+    return system_payment_methods
 
 @router.get("/{payment_method_id}", response_model=PaymentMethodSchema)
 async def get_payment_method(
@@ -31,14 +36,27 @@ async def get_payment_method(
     current_user: User = Depends(get_current_active_user)
 ):
     """Get a specific payment method by ID"""
+    # Try to find user-specific payment method first
     payment_method = db.query(PaymentMethod).filter(
         PaymentMethod.id == payment_method_id,
         PaymentMethod.user_id == current_user.id,
         PaymentMethod.is_active == True
     ).first()
     
+    # If not found, try to find system-wide payment method
+    if not payment_method:
+        payment_method = db.query(PaymentMethod).filter(
+            PaymentMethod.id == payment_method_id,
+            PaymentMethod.user_id == None,
+            PaymentMethod.is_active == True
+        ).first()
+    
     if not payment_method:
         raise HTTPException(status_code=404, detail="Payment method not found")
+    
+    # Fix metadata field to ensure it's a dictionary
+    if payment_method.payment_metadata is None:
+        payment_method.payment_metadata = {}
     
     return payment_method
 
@@ -67,7 +85,13 @@ async def create_payment_method(
         ).update({"is_default": False})
     
     # Create the payment method
-    db_payment_method = PaymentMethod(**payment_method.dict(), user_id=current_user.id)
+    payment_data = payment_method.dict()
+    db_payment_method = PaymentMethod(**payment_data, user_id=current_user.id)
+    
+    # Ensure payment_metadata is a dictionary
+    if db_payment_method.payment_metadata is None:
+        db_payment_method.payment_metadata = {}
+        
     db.add(db_payment_method)
     db.commit()
     db.refresh(db_payment_method)
@@ -103,6 +127,10 @@ async def update_payment_method(
     for key, value in payment_method_update.dict().items():
         if value is not None:
             setattr(db_payment_method, key, value)
+    
+    # Ensure payment_metadata is a dictionary
+    if db_payment_method.payment_metadata is None:
+        db_payment_method.payment_metadata = {}
     
     db_payment_method.updated_at = datetime.now()
     db.commit()
