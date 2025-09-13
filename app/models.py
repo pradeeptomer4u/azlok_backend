@@ -184,6 +184,7 @@ class User(Base):
     certifications = relationship("Certification", back_populates="user")
     awards = relationship("Award", back_populates="user")
     testimonials = relationship("Testimonial", back_populates="user")
+    addresses = relationship("UserAddress", back_populates="user")
 
 class Category(Base):
     __tablename__ = "categories"
@@ -623,4 +624,39 @@ class Blog(Base):
     # Relationships
     author = relationship("User", backref="blogs")
     featured_products = relationship("Product", secondary=blog_product, backref="featured_in_blogs")
+
+
+class ShippingMethod(Base):
+    __tablename__ = "shipping_methods"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    price = Column(Float, nullable=False)
+    estimated_days = Column(String, nullable=False)  # e.g., "3-5 days", "1-2 days"
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class UserAddress(Base):
+    __tablename__ = "user_addresses"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    full_name = Column(String, nullable=False)
+    address_line1 = Column(String, nullable=False)
+    address_line2 = Column(String, nullable=True)
+    city = Column(String, nullable=False)
+    state = Column(String, nullable=False)
+    country = Column(String, nullable=False)
+    zip_code = Column(String, nullable=False)
+    phone_number = Column(String, nullable=False)
+    is_default = Column(Boolean, default=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationship
+    user = relationship("User", back_populates="addresses")
 

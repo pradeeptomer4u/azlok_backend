@@ -1029,3 +1029,66 @@ class BlogListResponse(BaseModel):
     page: int
     size: int
     pages: int
+
+
+# Shipping Method schemas
+class ShippingMethodBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: float
+    estimated_days: str
+    is_active: bool = True
+
+class ShippingMethodCreate(ShippingMethodBase):
+    pass
+
+class ShippingMethodUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    estimated_days: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class ShippingMethod(ShippingMethodBase):
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+# User Address schemas
+class UserAddressBase(BaseModel):
+    full_name: str
+    address_line1: str
+    address_line2: Optional[str] = None
+    city: str
+    state: str
+    country: str
+    zip_code: str
+    phone_number: str
+    is_default: bool = False
+
+class UserAddressCreate(UserAddressBase):
+    pass
+
+class UserAddressUpdate(BaseModel):
+    full_name: Optional[str] = None
+    address_line1: Optional[str] = None
+    address_line2: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    zip_code: Optional[str] = None
+    phone_number: Optional[str] = None
+    is_default: Optional[bool] = None
+
+class UserAddress(UserAddressBase):
+    id: int
+    user_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
