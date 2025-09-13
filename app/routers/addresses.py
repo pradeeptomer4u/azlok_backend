@@ -25,28 +25,7 @@ async def get_user_addresses(
         UserAddress.is_active == True
     ).all()
     
-    # If no addresses exist, create a default one
-    if not addresses:
-        # Create a default address
-        default_address = UserAddress(
-            user_id=current_user.id,
-            full_name=current_user.full_name,
-            address_line1="123 Main Street",
-            city="Mumbai",
-            state="Maharashtra",
-            country="India",
-            zip_code="400001",
-            phone_number=current_user.phone or "9876543210",
-            is_default=True,
-            is_active=True
-        )
-        
-        db.add(default_address)
-        db.commit()
-        db.refresh(default_address)
-        
-        addresses = [default_address]
-    
+    # Return the addresses (empty list if none exist)
     return addresses
 
 @router.post("/", response_model=UserAddressSchema, status_code=status.HTTP_201_CREATED)

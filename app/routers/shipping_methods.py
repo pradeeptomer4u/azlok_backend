@@ -19,41 +19,8 @@ async def get_shipping_methods(
     db: Session = Depends(get_db)
 ):
     """Get all available shipping methods"""
-    # Create some default shipping methods if none exist
+    # Get all active shipping methods from the database
     shipping_methods = db.query(ShippingMethod).filter(ShippingMethod.is_active == True).all()
-    
-    if not shipping_methods:
-        # Create default shipping methods
-        default_methods = [
-            ShippingMethod(
-                name="Standard Shipping",
-                description="Delivery within 3-5 business days",
-                price=50.0,
-                estimated_days="3-5 days",
-                is_active=True
-            ),
-            ShippingMethod(
-                name="Express Shipping",
-                description="Delivery within 1-2 business days",
-                price=100.0,
-                estimated_days="1-2 days",
-                is_active=True
-            ),
-            ShippingMethod(
-                name="Same Day Delivery",
-                description="Delivery within 24 hours (select areas only)",
-                price=200.0,
-                estimated_days="Same day",
-                is_active=True
-            )
-        ]
-        
-        db.add_all(default_methods)
-        db.commit()
-        
-        # Fetch the newly created methods
-        shipping_methods = db.query(ShippingMethod).filter(ShippingMethod.is_active == True).all()
-    
     return shipping_methods
 
 @router.get("/{shipping_method_id}", response_model=ShippingMethodSchema)

@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
 
+from sqlalchemy.sql.functions import current_user
+
 from ..database import get_db
 from ..models import PaymentMethod, User
 from ..schemas import PaymentMethodBase, PaymentMethod as PaymentMethodSchema, PaymentMethodType
@@ -20,52 +22,11 @@ async def get_payment_methods(
     current_user: User = Depends(get_current_active_user)
 ):
     """Get all payment methods for the current user"""
-    # Check if user has any payment methods
+    # Get all active payment methods for the current user
     user_payment_methods = db.query(PaymentMethod).filter(
         PaymentMethod.user_id == current_user.id,
         PaymentMethod.is_active == True
     ).all()
-    
-    # If no payment methods exist, create default ones
-    if not user_payment_methods:
-        # Create default payment methods
-        default_methods = [
-            PaymentMethod(
-                user_id=current_user.id,
-                method_type=PaymentMethodType.CREDIT_CARD,
-                provider="Visa",
-                is_default=True,
-                is_active=True,
-                card_last_four="1234",
-                card_expiry_month="12",
-                card_expiry_year="2025",
-                card_holder_name=current_user.full_name
-            ),
-            PaymentMethod(
-                user_id=current_user.id,
-                method_type=PaymentMethodType.UPI,
-                provider="Google Pay",
-                is_default=False,
-                is_active=True,
-                upi_id=f"{current_user.username}@okaxis"
-            ),
-            PaymentMethod(
-                user_id=current_user.id,
-                method_type=PaymentMethodType.COD,
-                provider="Cash on Delivery",
-                is_default=False,
-                is_active=True
-            )
-        ]
-        
-        db.add_all(default_methods)
-        db.commit()
-        
-        # Fetch the newly created methods
-        user_payment_methods = db.query(PaymentMethod).filter(
-            PaymentMethod.user_id == current_user.id,
-            PaymentMethod.is_active == True
-        ).all()
     
     return user_payment_methods
 
