@@ -640,7 +640,7 @@ class PaymentMethodUpdate(BaseModel):
 
 class PaymentMethodInDB(PaymentMethodBase):
     id: int
-    user_id: int
+    user_id: Optional[int] = None
     is_active: bool
     last_used: Optional[datetime] = None
     token: Optional[str] = None
