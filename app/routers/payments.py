@@ -8,11 +8,12 @@ from ..database import get_db
 from ..models import Payment, PaymentMethod, Transaction, InstallmentPlan, PaymentStatus, PaymentMethodType, TransactionType
 from ..schemas import (
     PaymentCreate, PaymentUpdate, Payment as PaymentSchema, 
-    PaymentMethodCreate, PaymentMethodUpdate, PaymentMethod as PaymentMethodSchema,
+    PaymentMethodCreate, PaymentMethodUpdate,
     TransactionCreate, Transaction as TransactionSchema,
     InstallmentPlanCreate, InstallmentPlan as InstallmentPlanSchema,
     PaymentListResponse, PaymentSummary
 )
+from .payment_methods import PaymentMethodResponse
 from .auth import get_current_active_user
 from ..schemas import User
 
@@ -36,7 +37,7 @@ def generate_transaction_reference():
     return f"TXN-{timestamp}-{unique_id}"
 
 # Payment Methods Endpoints
-@router.post("/methods", response_model=PaymentMethodSchema, status_code=status.HTTP_201_CREATED)
+@router.post("/methods", response_model=PaymentMethodResponse, status_code=status.HTTP_201_CREATED)
 def create_payment_method(
     payment_method: PaymentMethodCreate,
     db: Session = Depends(get_db),
@@ -79,7 +80,7 @@ def create_payment_method(
     db.refresh(db_payment_method)
     return db_payment_method
 
-@router.get("/methods", response_model=List[PaymentMethodSchema])
+@router.get("/methods", response_model=List[PaymentMethodResponse])
 def get_payment_methods(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -93,7 +94,7 @@ def get_payment_methods(
     
     return query.all()
 
-@router.get("/methods/{payment_method_id}", response_model=PaymentMethodSchema)
+@router.get("/methods/{payment_method_id}", response_model=PaymentMethodResponse)
 def get_payment_method(
     payment_method_id: int = Path(..., description="The ID of the payment method to get"),
     db: Session = Depends(get_db),
@@ -113,7 +114,7 @@ def get_payment_method(
     
     return payment_method
 
-@router.put("/methods/{payment_method_id}", response_model=PaymentMethodSchema)
+@router.put("/methods/{payment_method_id}", response_model=PaymentMethodResponse)
 def update_payment_method(
     payment_method_update: PaymentMethodUpdate,
     payment_method_id: int = Path(..., description="The ID of the payment method to update"),
