@@ -8,11 +8,7 @@ from ..models import ShippingMethod
 from ..schemas import ShippingMethodBase, ShippingMethod as ShippingMethodSchema
 from .auth import get_current_active_user, get_admin_user
 
-router = APIRouter(
-    prefix="/shipping-methods",
-    tags=["shipping"],
-    responses={404: {"description": "Not found"}},
-)
+router = APIRouter()
 
 @router.get("/", response_model=List[ShippingMethodSchema])
 async def get_shipping_methods(

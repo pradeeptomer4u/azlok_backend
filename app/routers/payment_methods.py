@@ -10,11 +10,7 @@ from ..models import PaymentMethod, User
 from ..schemas import PaymentMethodBase, PaymentMethod as PaymentMethodSchema, PaymentMethodType
 from .auth import get_current_active_user, get_admin_user
 
-router = APIRouter(
-    prefix="/payment-methods",
-    tags=["payments"],
-    responses={404: {"description": "Not found"}},
-)
+router = APIRouter()
 
 @router.get("/", response_model=List[PaymentMethodSchema])
 async def get_payment_methods(

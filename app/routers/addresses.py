@@ -8,12 +8,7 @@ from ..models import UserAddress, User
 from ..schemas import UserAddressBase, UserAddressCreate, UserAddressUpdate, UserAddress as UserAddressSchema
 from .auth import get_current_active_user
 
-router = APIRouter(
-    prefix="/users/addresses",
-    tags=["addresses"],
-    responses={404: {"description": "Not found"}},
-)
-
+router = APIRouter()
 @router.get("/", response_model=List[UserAddressSchema])
 async def get_user_addresses(
     db: Session = Depends(get_db),
