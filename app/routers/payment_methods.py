@@ -71,7 +71,7 @@ async def get_payment_method(
     
     return payment_method
 
-@router.post("/", response_model=PaymentMethodSchema, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=PaymentMethodResponse, status_code=status.HTTP_201_CREATED)
 async def create_payment_method(
     payment_method: PaymentMethodBase,
     db: Session = Depends(get_db),
@@ -109,7 +109,7 @@ async def create_payment_method(
     
     return db_payment_method
 
-@router.put("/{payment_method_id}", response_model=PaymentMethodSchema)
+@router.put("/{payment_method_id}", response_model=PaymentMethodResponse)
 async def update_payment_method(
     payment_method_id: int,
     payment_method_update: PaymentMethodBase,

@@ -654,11 +654,8 @@ class PaymentMethodInDB(PaymentMethodBase):
 
 
 class PaymentMethod(PaymentMethodInDB):
-    @validator('payment_metadata', pre=True)
-    def ensure_metadata_dict(cls, v):
-        if v is None:
-            return {}
-        return v
+    # Remove the validator since the field is named 'metadata', not 'payment_metadata'
+    pass
 
 
 # Transaction Schemas
