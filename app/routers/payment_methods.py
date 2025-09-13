@@ -1,62 +1,73 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional, Dict, Any
 from datetime import datetime
+from pydantic import BaseModel
 
 from sqlalchemy.sql.functions import current_user
 
 from ..database import get_db
-from ..models import PaymentMethod, User
-from ..schemas import PaymentMethodBase, PaymentMethod as PaymentMethodSchema, PaymentMethodType
+from ..models import PaymentMethod, User, PaymentMethodType as PaymentMethodTypeEnum
+from ..schemas import PaymentMethodBase, PaymentMethodType
 from .auth import get_current_active_user, get_admin_user
+
+# Custom response model for payment methods
+class PaymentMethodResponse(BaseModel):
+    id: int
+    method_type: PaymentMethodType
+    provider: str
+    is_default: bool = False
+    is_active: bool = True
+    user_id: Optional[int] = None
+    
+    # Optional fields based on payment method type
+    card_last_four: Optional[str] = None
+    card_expiry_month: Optional[str] = None
+    card_expiry_year: Optional[str] = None
+    card_holder_name: Optional[str] = None
+    upi_id: Optional[str] = None
+    bank_name: Optional[str] = None
+    account_last_four: Optional[str] = None
+    account_holder_name: Optional[str] = None
+    wallet_provider: Optional[str] = None
+    wallet_id: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
 
 router = APIRouter()
 
-@router.get("/", response_model=List[PaymentMethodSchema])
+@router.get("/", response_model=List[PaymentMethodResponse])
 async def get_payment_methods(
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ):
-    """Get all payment methods for the current user for checkout"""
-    # Get payment methods for checkout
-    # First get user-specific payment methods
-    
-    # Then get system-wide payment methods (those with user_id = None)
+    """Get all payment methods for checkout"""
+    # Get system-wide payment methods (those with user_id = None)
     system_payment_methods = db.query(PaymentMethod).filter(
         PaymentMethod.user_id == None,
         PaymentMethod.is_active == True
     ).all()
     
-    
     return system_payment_methods
 
-@router.get("/{payment_method_id}", response_model=PaymentMethodSchema)
+@router.get("/{payment_method_id}", response_model=PaymentMethodResponse)
 async def get_payment_method(
     payment_method_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    db: Session = Depends(get_db)
 ):
     """Get a specific payment method by ID"""
-    # Try to find user-specific payment method first
+    # Find payment method by ID
     payment_method = db.query(PaymentMethod).filter(
         PaymentMethod.id == payment_method_id,
-        PaymentMethod.user_id == current_user.id,
         PaymentMethod.is_active == True
     ).first()
     
-    # If not found, try to find system-wide payment method
-    if not payment_method:
-        payment_method = db.query(PaymentMethod).filter(
-            PaymentMethod.id == payment_method_id,
-            PaymentMethod.user_id == None,
-            PaymentMethod.is_active == True
-        ).first()
+    # No need to search again, the first query already covers all cases
     
     if not payment_method:
         raise HTTPException(status_code=404, detail="Payment method not found")
     
-    # Fix metadata field to ensure it's a dictionary
-    if payment_method.payment_metadata is None:
-        payment_method.payment_metadata = {}
+    # No need to fix metadata field with our custom response model
     
     return payment_method
 
