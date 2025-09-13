@@ -312,6 +312,11 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+
+class UsernameAvailability(BaseModel):
+    username: str
+    available: bool
+    message: str
     role: Optional[UserRole] = None
 
 # Search schemas

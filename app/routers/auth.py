@@ -142,6 +142,28 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+@router.get("/check-username/{username}", response_model=schemas.UsernameAvailability)
+async def check_username_availability(username: str, db: Session = Depends(get_db)):
+    """
+    Check if a username is available for registration
+    """
+    try:
+        db_user = db.query(models.User).filter(models.User.username == username).first()
+        is_available = db_user is None
+        
+        return {
+            "username": username,
+            "available": is_available,
+            "message": "Username is available" if is_available else "Username is already taken"
+        }
+    except Exception as e:
+        logger.error(f"Error checking username availability: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error checking username availability: {str(e)}"
+        )
+
 @router.post("/register", response_model=schemas.User)
 async def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
