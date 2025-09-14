@@ -4,7 +4,7 @@ from typing import List
 from datetime import datetime
 
 from ..database import get_db
-from ..models import ShippingMethod
+from ..models import ShippingMethod, User
 from ..schemas import ShippingMethodBase, ShippingMethod as ShippingMethodSchema
 from .auth import get_current_active_user, get_admin_user
 
@@ -12,10 +12,12 @@ router = APIRouter()
 
 @router.get("/", response_model=List[ShippingMethodSchema])
 async def get_shipping_methods(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """Get all available shipping methods"""
     # Get all active shipping methods from the database
+    print(current_user.id)
     shipping_methods = db.query(ShippingMethod).filter(ShippingMethod.is_active == True).all()
     return shipping_methods
 
