@@ -141,7 +141,7 @@ async def create_order(
 # Public endpoint to track an order by order number
 @router.get("/track/{order_number}", response_model=schemas.OrderResponse)
 async def track_order_by_number(
-    order_number: str,
+    order_number: int,
     db: Session = Depends(get_db)
 ):
     """
@@ -149,7 +149,7 @@ async def track_order_by_number(
     This endpoint doesn't require authentication
     """
     # Try to find the order by order_number
-    order = db.query(models.Order).filter(models.Order.order_number == order_number).first()
+    order = db.query(models.Order).filter(models.Order.id == order_number).first()
     
     if not order:
         raise HTTPException(status_code=404, detail=f"Order #{order_number} not found")
