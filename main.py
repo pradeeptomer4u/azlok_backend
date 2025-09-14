@@ -17,7 +17,7 @@ logging.basicConfig(
 from app.database import get_db
 # Import models to ensure they're registered with SQLAlchemy
 from app.models import *
-from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials, blogs, shipping_methods, payment_methods, addresses, checkout
+from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials, blogs, shipping_methods, payment_methods, addresses, checkout, orders
 from app.utils.keep_alive import start_keep_alive
 
 app = FastAPI(
@@ -44,7 +44,7 @@ app.include_router(products.router, prefix="/api/products", tags=["Products"])
 app.include_router(categories.router, prefix="/api/categories", tags=["Categories"])
 app.include_router(cart.router, prefix="/api/cart", tags=["Cart"])
 # Orders router temporarily removed
-# app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
+app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 app.include_router(seller_api.router, prefix="/api/seller", tags=["Seller API"])
 app.include_router(tax.router, prefix="/api/tax", tags=["Tax"])
