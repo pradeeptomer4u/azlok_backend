@@ -53,7 +53,7 @@ app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(invoices.router, prefix="/api/invoices", tags=["Invoices"])
 app.include_router(testimonials.router, prefix="/api/testimonials", tags=["Testimonials"])
 app.include_router(blogs.router, prefix="/api/blogs", tags=["Blogs"])
-app.include_router(shipping_methods.router, prefix="/api/shipping-methods", tags=["Shipping"])
+app.include_router(shipping_methods.router, prefix="/api/shipping", tags=["Shipping"])
 app.include_router(payment_methods.router, prefix="/api/payment-methods", tags=["Payment Methods"])
 app.include_router(checkout.router, prefix="/api/checkout", tags=["Checkout"])
 
