@@ -375,6 +375,8 @@ class OrderBase(BaseModel):
     shipping_method_id: int
     shipping_address_id: int
     notes: Optional[str] = None
+    class Config:
+        from_attributes = True
 
 class OrderCreate(OrderBase):
     items: List[OrderItemCreate]

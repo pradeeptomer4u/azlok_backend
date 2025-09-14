@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post("/", response_model=schemas.Order, status_code=status.HTTP_201_CREATED)
 async def create_order(
-    order_request: schemas.OrderCreate,
+    order_request: schemas.OrderBase,
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
