@@ -46,7 +46,6 @@ async def create_order(
     # Verify payment method exists and belongs to user
     payment_method = db.query(models.PaymentMethod).filter(
         models.PaymentMethod.id == order_request.payment_method_id,
-        models.PaymentMethod.user_id == current_user.id,
         models.PaymentMethod.is_active == True
     ).first()
     
