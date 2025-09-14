@@ -134,7 +134,8 @@ async def create_order(
     db.query(models.CartItem).filter(models.CartItem.user_id == current_user.id).delete()
     db.commit()
     
-    return order
+    orders = db.query(models.Order).filter(models.Order.id == order.id).first()
+    return orders
 
 @router.get("/", response_model=List[schemas.Order])
 async def get_orders(
