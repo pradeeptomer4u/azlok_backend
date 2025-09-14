@@ -10,7 +10,7 @@ from .auth import get_current_active_user
 
 router = APIRouter()
 
-@router.post("/", response_model=schemas.Order, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.OrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
     order_request: schemas.OrderBase,
     current_user: schemas.User = Depends(get_current_active_user),
@@ -134,8 +134,9 @@ async def create_order(
     db.query(models.CartItem).filter(models.CartItem.user_id == current_user.id).delete()
     db.commit()
     
-    orders = db.query(models.Order).filter(models.Order.id == order.id).first()
-    return orders
+    # Query the order again to get all relationships loaded
+    order_with_details = db.query(models.Order).filter(models.Order.id == order.id).first()
+    return order_with_details
 
 @router.get("/", response_model=List[schemas.Order])
 async def get_orders(

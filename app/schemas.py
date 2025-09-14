@@ -391,15 +391,59 @@ class OrderInDB(OrderBase):
     id: int
     order_number: str
     user_id: int
+    subtotal_amount: float
     total_amount: float
     tax_amount: float
+    cgst_amount: float = 0.0
+    sgst_amount: float = 0.0
+    igst_amount: float = 0.0
     shipping_amount: float
+    discount_amount: float = 0.0
     status: OrderStatus
     payment_status: PaymentStatus
+    payment_method: str
+    payment_details: Optional[str] = None
+    shipping_address: str
+    billing_address: str
+    shipping_method: str
     tracking_number: Optional[str] = None
+    notes: Optional[str] = None
+    invoice_number: Optional[str] = None
+    invoice_date: Optional[datetime] = None
+    invoice_url: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
+    
+    class Config:
+        from_attributes = True
 
+class OrderResponse(BaseModel):
+    id: int
+    order_number: str
+    user_id: int
+    subtotal_amount: float
+    total_amount: float
+    tax_amount: float
+    cgst_amount: float = 0.0
+    sgst_amount: float = 0.0
+    igst_amount: float = 0.0
+    shipping_amount: float
+    discount_amount: float = 0.0
+    status: OrderStatus
+    payment_status: PaymentStatus
+    payment_method: str
+    payment_details: Optional[str] = None
+    shipping_address: str
+    billing_address: str
+    shipping_method: str
+    tracking_number: Optional[str] = None
+    notes: Optional[str] = None
+    invoice_number: Optional[str] = None
+    invoice_date: Optional[datetime] = None
+    invoice_url: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    
     class Config:
         from_attributes = True
 
