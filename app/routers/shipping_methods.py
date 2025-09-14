@@ -10,7 +10,7 @@ from .auth import get_current_active_user, get_admin_user
 
 router = APIRouter()
 
-@router.get("/", response_model=List[ShippingMethodSchema])
+@router.get("/", response_model=List[ShippingMethodSchema], status_code=status.HTTP_200_OK)
 async def get_shipping_methods(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
