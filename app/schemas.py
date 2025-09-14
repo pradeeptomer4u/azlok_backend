@@ -371,9 +371,9 @@ class OrderItem(OrderItemInDB):
     product: Product
 
 class OrderBase(BaseModel):
-    payment_method: str
-    shipping_method: str
-    shipping_address: Address
+    payment_method_id: int
+    shipping_method_id: int
+    shipping_address_id: int
     notes: Optional[str] = None
 
 class OrderCreate(OrderBase):
