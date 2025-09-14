@@ -15,7 +15,7 @@ class CheckoutSummary(BaseModel):
     tax: float
     total: float
 
-@router.get("/summary", response_model=CheckoutSummary)
+@router.get("/", response_model=CheckoutSummary)
 async def get_checkout_summary(
     shipping_method_id: int = Query(..., description="ID of the selected shipping method"),
     current_user: schemas.User = Depends(get_current_active_user),

@@ -55,7 +55,7 @@ app.include_router(testimonials.router, prefix="/api/testimonials", tags=["Testi
 app.include_router(blogs.router, prefix="/api/blogs", tags=["Blogs"])
 app.include_router(shipping_methods.router, prefix="/api/shipping", tags=["Shipping"])
 app.include_router(payment_methods.router, prefix="/api/payment-methods", tags=["Payment Methods"])
-app.include_router(checkout.router, prefix="/api/checkout", tags=["Checkout"])
+app.include_router(checkout.router, prefix="/api/cart-summary", tags=["Checkout Summary"])
 
 # SEO router - no prefix as these are root-level endpoints
 app.include_router(seo.router, tags=["SEO"])
