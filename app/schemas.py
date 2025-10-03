@@ -180,6 +180,12 @@ class ProductBase(BaseModel):
     hsn_code: Optional[str] = None  # HSN code for GST classification
     tax_rate: Optional[float] = 0.0  # Default tax rate
     is_tax_inclusive: Optional[bool] = False  # Whether price includes tax
+    is_bestseller: Optional[bool] = False
+    is_new : Optional[bool] = False
+    is_featured : Optional[bool] = False 
+    is_top_seller : Optional[bool] = False 
+    is_top_product : Optional[bool] = False 
+    is_popular  : Optional[bool] = False 
 
 class ProductCreate(ProductBase):
     slug: Optional[str] = None
