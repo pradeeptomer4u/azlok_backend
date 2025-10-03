@@ -145,6 +145,12 @@ class Product(Base):
     approved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    is_bestseller = Column(Boolean, default=False,nullable=True)
+    is_new = Column(Boolean, default=False,nullable=True)
+    is_featured = Column(Boolean, default=False,nullable=True) 
+    is_top_seller = Column(Boolean, default=False,nullable=True) 
+    is_top_product = Column(Boolean, default=False,nullable=True) 
+    is_popular  = Column(Boolean, default=False,nullable=True) 
 
     # Relationships
     seller = relationship("User", back_populates="products", foreign_keys=[seller_id])

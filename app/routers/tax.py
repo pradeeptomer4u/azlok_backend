@@ -429,11 +429,10 @@ async def calculate_tax(
         "hsn_code": product.hsn_code
     }
 
-# Calculate tax for an entire order
+# Calculate tax for an entire order (public endpoint - no authentication required)
 @router.post("/calculate-order-tax", response_model=Dict)
 async def calculate_order_tax(
     order_request: schemas.OrderTaxCalculationRequest,
-    current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     total_amount = 0
