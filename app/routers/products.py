@@ -110,8 +110,7 @@ async def create_product(
         "price": db_product.price,
         "categories": [c.id for c in db_product.categories]
     }
-    redis_client.hset(f"product:{db_product.id}", mapping=product_data)
-    
+
     return db_product
 
 @router.get("/", response_model=List[schemas.Product])
@@ -480,12 +479,12 @@ async def update_product(
     }
     
     # Safely update Redis if available
-    if redis_client is not None:
-        try:
-            redis_client.hset(f"product:{db_product.id}", mapping=product_data)
-        except Exception as e:
-            # Log error but continue - Redis is optional
-            logging.warning(f"Failed to update product in Redis: {e}")
+    # if redis_client is not None:
+    #     try:
+    #         redis_client.hset(f"product:{db_product.id}", mapping=product_data)
+    #     except Exception as e:
+    #         # Log error but continue - Redis is optional
+    #         logging.warning(f"Failed to update product in Redis: {e}")
     
     return db_product
 
