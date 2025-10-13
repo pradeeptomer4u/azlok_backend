@@ -204,6 +204,10 @@ class ProductCreate(ProductBase):
             if base_price is not None and 'price' not in data:
                 # Default margin of 10% if not specified
                 data['price'] = base_price * 1.1
+            price = data.get('price')
+            if price is not None and 'base_price' not in data:
+                # Default margin of 10% if not specified
+                data['base_price'] = data['price']
         return data
 
 class ProductUpdate(BaseModel):
