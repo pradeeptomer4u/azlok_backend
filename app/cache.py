@@ -12,26 +12,23 @@ logger = logging.getLogger(__name__)
 
 # Redis configuration
 REDIS_URL = "redis://default:neXvrqBYXo5Hwdcbm3JBRCTYyuriDgSU@redis-11813.c323.us-east-1-2.ec2.redns.redis-cloud.com:11813"
-REDIS_ENABLED = os.getenv('REDIS_ENABLED', 'true').lower() == 'true'
 
 # Initialize Redis client with fault tolerance
-redis_client = None
-if REDIS_ENABLED:
-    try:
-        # Configure Redis with SSL support for rediss:// URLs
-        ssl_enabled = REDIS_URL.startswith('rediss://')
-        redis_client = redis.from_url(
-            REDIS_URL, 
-            decode_responses=True, 
-            socket_connect_timeout=5.0,
-            # ssl=ssl_enabled
-        )
-        # Test connection
-        redis_client.ping()
-        logger.info("Redis connection established successfully")
-    except Exception as e:
-        logger.warning(f"Redis connection failed: {e}. Caching will be disabled.")
-        redis_client = None
+try:
+    # Configure Redis with SSL support for rediss:// URLs
+    ssl_enabled = REDIS_URL.startswith('rediss://')
+    redis_client = redis.from_url(
+        REDIS_URL,
+        decode_responses=True,
+        socket_connect_timeout=5.0,
+        # ssl=ssl_enabled
+    )
+    # Test connection
+    redis_client.ping()
+    logger.info("Redis connection established successfully")
+except Exception as e:
+    logger.warning(f"Redis connection failed: {e}. Caching will be disabled.")
+    redis_client = None
 
 class RedisCache:
     def __init__(self):
