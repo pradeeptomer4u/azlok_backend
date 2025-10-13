@@ -11,7 +11,7 @@ from datetime import timedelta
 logger = logging.getLogger(__name__)
 
 # Redis configuration
-REDIS_URL = os.getenv('REDIS_URL', 'rediss://red-d2hf7madbo4c73b07d80:plrHFkfAEWLT2nptLACkfMdDkXWs27Pj@singapore-keyvalue.render.com:6379')
+REDIS_URL = "redis://default:neXvrqBYXo5Hwdcbm3JBRCTYyuriDgSU@redis-11813.c323.us-east-1-2.ec2.redns.redis-cloud.com:11813"
 REDIS_ENABLED = os.getenv('REDIS_ENABLED', 'true').lower() == 'true'
 
 # Initialize Redis client with fault tolerance
