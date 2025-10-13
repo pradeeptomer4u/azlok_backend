@@ -54,7 +54,7 @@ try:
         REDIS_URL, 
         decode_responses=True,
         socket_connect_timeout=5.0,
-        ssl=ssl_enabled
+        # ssl=ssl_enabled
     )
     # Test connection
     redis_client.ping()
