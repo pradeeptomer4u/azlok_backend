@@ -75,6 +75,7 @@ async def create_product(
         sku=sku,
         description=product.description,
         price=product.price,
+        base_price=product.price,
         stock_quantity=product.stock_quantity,
         image_urls=json.dumps(product.image_urls),
         seller_id=current_user.id,
