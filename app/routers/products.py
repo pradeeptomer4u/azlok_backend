@@ -75,7 +75,10 @@ async def create_product(
         sku=sku,
         description=product.description,
         price=product.price,
-        base_price=product.price,
+        base_price=product.base_price,  # Use the provided base_price instead of price
+        hsn_code=product.hsn_code,      # Add hsn_code
+        tax_rate=product.tax_rate,      # Add tax_rate
+        is_tax_inclusive=product.is_tax_inclusive,  # Add is_tax_inclusive
         stock_quantity=product.stock_quantity,
         image_urls=json.dumps(product.image_urls),
         seller_id=current_user.id,
@@ -405,6 +408,18 @@ async def update_product(
     if product_update.price is not None:
         db_product.price = product_update.price
     
+    if product_update.base_price is not None:
+        db_product.base_price = product_update.base_price
+    
+    if product_update.hsn_code is not None:
+        db_product.hsn_code = product_update.hsn_code
+    
+    if product_update.tax_rate is not None:
+        db_product.tax_rate = product_update.tax_rate
+    
+    if product_update.is_tax_inclusive is not None:
+        db_product.is_tax_inclusive = product_update.is_tax_inclusive
+    
     if product_update.stock_quantity is not None:
         db_product.stock_quantity = product_update.stock_quantity
     
@@ -470,13 +485,17 @@ async def update_product(
     
     # Update product in Redis
     product_data = {
-        "id": db_product.id,
-        "name": db_product.name,
-        "slug": db_product.slug,
-        "sku": db_product.sku,
-        "description": db_product.description,
-        "price": db_product.price,
-        "categories": [c.id for c in db_product.categories]
+    "id": db_product.id,
+    "name": db_product.name,
+    "slug": db_product.slug,
+    "sku": db_product.sku,
+    "description": db_product.description,
+    "price": db_product.price,
+    "base_price": db_product.base_price,
+    "hsn_code": db_product.hsn_code,
+    "tax_rate": db_product.tax_rate,
+    "is_tax_inclusive": db_product.is_tax_inclusive,
+    "categories": [c.id for c in db_product.categories]
     }
     
     # Safely update Redis if available
