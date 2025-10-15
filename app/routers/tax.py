@@ -58,13 +58,26 @@ async def get_tax_rates(
             category = db.query(models.Category).filter(models.Category.id == tax_rate.category_id).first()
             if category:
                 category_name = category.name
-        
+        hsn_code = None
+        if tax_rate.category_id and category:
+            # Try to get a product from this category to extract HSN code
+            product = db.query(models.Product).filter(
+                models.Product.id.in_(
+                    db.query(models.product_category.c.product_id)
+                    .filter(models.product_category.c.category_id == tax_rate.category_id)
+                    .limit(1)
+                )
+            ).first()
+            if product and product.hsn_code:
+                hsn_code = product.hsn_code
+
         result.append({
             "id": tax_rate.id,
             "tax_type": tax_rate.tax_type,
             "rate": tax_rate.rate,
             "category_id": tax_rate.category_id,
             "category_name": category_name,
+            "hsn_code": hsn_code,
             "region": tax_rate.region,
             "is_active": tax_rate.is_active,
             "effective_from": tax_rate.effective_from,
