@@ -9,9 +9,21 @@ from sqlalchemy import text
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from app.database import SessionLocal, engine
+from app import models, models_inventory
+
+def create_tables():
+    """Create all tables if they don't exist."""
+    print("Creating tables if they don't exist...")
+    # Create tables from both model files
+    models.Base.metadata.create_all(bind=engine)
+    models_inventory.Base.metadata.create_all(bind=engine)
+    print("Tables created or already exist")
 
 def run_migration():
     """Run database migration to add new columns and tables."""
+    # First create tables if they don't exist
+    create_tables()
+    
     db = SessionLocal()
     try:
         print("Starting database migration...")
@@ -69,6 +81,26 @@ def run_migration():
         else:
             print("testimonials table already exists")
         
+        # Check if purchase_receipt_id column exists in stock_movements table
+        check_stock_movement_column_sql = """
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name='stock_movements' AND column_name='purchase_receipt_id';
+        """
+        result = db.execute(text(check_stock_movement_column_sql)).fetchone()
+        
+        if not result:
+            print("Adding purchase_receipt_id column to stock_movements table...")
+            add_column_sql = """
+            ALTER TABLE stock_movements 
+            ADD COLUMN IF NOT EXISTS purchase_receipt_id INTEGER REFERENCES purchase_receipts(id);
+            """
+            db.execute(text(add_column_sql))
+            db.commit()
+            print("Added purchase_receipt_id column to stock_movements table")
+        else:
+            print("purchase_receipt_id column already exists in stock_movements table")
+            
         print("Database migration completed successfully!")
     except Exception as e:
         print(f"Error during migration: {e}")

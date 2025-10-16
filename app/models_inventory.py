@@ -112,6 +112,7 @@ class StockMovement(Base):
     reference_number = Column(String, nullable=True)  # PO number, SO number, etc.
     reference_type = Column(String, nullable=True)  # "purchase_order", "sales_order", etc.
     reference_id = Column(Integer, nullable=True)  # ID of the reference document
+    purchase_receipt_id = Column(Integer, ForeignKey("purchase_receipts.id"), nullable=True)  # Link to purchase receipt
     notes = Column(Text, nullable=True)
     performed_by = Column(Integer, ForeignKey("users.id"))
     performed_at = Column(DateTime(timezone=True), server_default=func.now())
