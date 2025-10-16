@@ -17,7 +17,7 @@ logging.basicConfig(
 from app.database import get_db
 # Import models to ensure they're registered with SQLAlchemy
 from app.models import *
-from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials, blogs, shipping_methods, payment_methods, addresses, checkout, orders
+from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials, blogs, shipping_methods, payment_methods, addresses, checkout, orders, inventory, packaged_products, purchase, production, gate_pass
 from app.utils.keep_alive import start_keep_alive
 
 app = FastAPI(
@@ -56,7 +56,11 @@ app.include_router(blogs.router, prefix="/api/blogs", tags=["Blogs"])
 app.include_router(shipping_methods.router, prefix="/api/shipping", tags=["Shipping"])
 app.include_router(payment_methods.router, prefix="/api/payment-methods", tags=["Payment Methods"])
 app.include_router(checkout.router, prefix="/api/cart-summary", tags=["Checkout Summary"])
-
+app.include_router(inventory.router, prefix="/inventory", tags=["inventory"])
+app.include_router(packaged_products.router, prefix="/packaged-products", tags=["packaged-products"])
+app.include_router(purchase.router, prefix="/purchase", tags=["purchase"])
+app.include_router(production.router, prefix="/production", tags=["production"])
+app.include_router(gate_pass.router, prefix="/gate-pass", tags=["gate-pass"])
 # SEO router - no prefix as these are root-level endpoints
 app.include_router(seo.router, tags=["SEO"])
 
