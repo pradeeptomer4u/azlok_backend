@@ -14,7 +14,7 @@ click==8.2.1
 cssselect2==0.8.0
 dnspython==2.7.0
 ecdsa==0.19.1
-email_validator==2.2.0
+email-validator==2.2.0
 fastapi==0.116.1
 fastapi-cli==0.0.8
 fastapi-cloud-cli==0.1.5
@@ -57,6 +57,7 @@ python-dotenv==1.1.1
 python-jose==3.5.0
 python-multipart==0.0.20
 PyYAML==6.0.2
+razorpay==1.4.1
 redis==6.4.0
 requests==2.32.5
 rich==14.1.0
@@ -85,4 +86,3 @@ webencodings==0.5.1
 websockets==15.0.1
 zopfli==0.2.3.post1
 python-slugify
-
