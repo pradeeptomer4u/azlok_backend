@@ -7,11 +7,11 @@ import uuid
 from ..database import get_db
 from ..models import Payment, PaymentMethod, Transaction, InstallmentPlan, PaymentStatus, PaymentMethodType, TransactionType
 from ..schemas import (
-    PaymentCreate, PaymentUpdate, Payment as PaymentSchema, 
+    PaymentCreate, PaymentUpdate, Payment as PaymentSchema,
     PaymentMethodCreate, PaymentMethodUpdate,
     TransactionCreate, Transaction as TransactionSchema,
     InstallmentPlanCreate, InstallmentPlan as InstallmentPlanSchema,
-    PaymentListResponse, PaymentSummary
+    PaymentListResponse, PaymentSummary, PaymentCreateResponse
 )
 from .payment_methods import PaymentMethodResponse
 from .auth import get_current_active_user
@@ -173,7 +173,7 @@ def delete_payment_method(
     return None
 
 # Payments Endpoints
-@router.post("", response_model=PaymentSchema, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PaymentCreateResponse, status_code=status.HTTP_201_CREATED)
 def create_payment(
     payment: PaymentCreate,
     db: Session = Depends(get_db),
@@ -201,7 +201,7 @@ def create_payment(
         is_recurring=payment.is_recurring,
         recurring_schedule=payment.recurring_schedule,
         refunded_amount=0.0,
-        metadata=payment.metadata
+        payment_metadata=payment.metadata if isinstance(payment.metadata, dict) else {}
     )
     
     db.add(db_payment)
@@ -220,7 +220,7 @@ def create_payment(
         status="pending",
         gateway=payment.gateway,
         description=f"Initial payment transaction for {payment_reference}",
-        metadata=payment.metadata
+        transaction_metadata=payment.metadata if isinstance(payment.metadata, dict) else {}
     )
     
     db.add(db_transaction)

@@ -889,6 +889,21 @@ class PaymentSummary(BaseModel):
     recent_payments: List[Payment] = []
 
 
+class PaymentCreateResponse(BaseModel):
+    id: int
+    payment_reference: str
+    order_id: Optional[int] = None
+    user_id: int
+    payment_method_id: Optional[int] = None
+    amount: float
+    currency: str
+    status: PaymentStatus
+
+    # Add other fields as needed
+
+    class Config:
+        from_attributes = True
+
 # Invoice Line Item schemas
 class InvoiceLineItemBase(BaseModel):
     product_id: Optional[int] = None
