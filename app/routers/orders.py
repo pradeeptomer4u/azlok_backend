@@ -99,8 +99,8 @@ async def create_order(
         item_total = item_price * cart_item.quantity
         
         # Default tax rate (10%)
-        item_tax = item_total * product.tax_rate
-        
+        item_tax = item_total * (product.tax_rate/100)
+        item_tax = round(item_tax, 2)
         # Create order item
         order_item = models.OrderItem(
             order_id=order.id,
