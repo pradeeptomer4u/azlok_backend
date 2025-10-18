@@ -32,10 +32,14 @@ async def get_checkout_summary(
     
     # Calculate subtotal
     subtotal = 0
+    tax_total = 0
     for item in cart_items:
         product = db.query(models.Product).filter(models.Product.id == item.product_id).first()
         if product:
-            subtotal += product.price * item.quantity
+            taxes = db.query(models.TaxRate).filter(models.TaxRate.category_id == product.categories).first()
+            product_amount = product.price * item.quantity
+            tax_total += taxes.rate * product_amount
+            subtotal += product_amount
     
     # Get shipping cost
     shipping_method = db.query(models.ShippingMethod).filter(
@@ -47,10 +51,8 @@ async def get_checkout_summary(
         raise HTTPException(status_code=404, detail="Shipping method not found")
     
     shipping_cost = shipping_method.price
-    
-    # Calculate tax (default 10%)
-    tax_rate = 0.1
-    tax_amount = round(subtotal * tax_rate, 2)
+
+    tax_amount = round(tax_total, 2)
     
     # Calculate total
     total = subtotal + shipping_cost + tax_amount
