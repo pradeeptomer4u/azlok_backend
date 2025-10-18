@@ -123,7 +123,17 @@ async def handle_payment_captured(payload: Dict[str, Any], db: Session):
     """
     payment_data = payload.get("payload", {}).get("payment", {}).get("entity", {})
     razorpay_payment_id = payment_data.get("id")
-    order_id = payment_data.get("notes", {}).get("order_id")
+    notes = payment_data.get("notes")
+    order_id = None
+
+    if isinstance(notes, dict):
+        order_id = notes.get("order_id")
+    elif isinstance(notes, list) and len(notes) > 0:
+        # Try to find an item with order_id in the list
+        for note in notes:
+            if isinstance(note, dict) and "order_id" in note:
+                order_id = note["order_id"]
+                break
 
     # Find the payment in our database
     payment = db.query(Payment).filter(
