@@ -36,9 +36,8 @@ async def get_checkout_summary(
     for item in cart_items:
         product = db.query(models.Product).filter(models.Product.id == item.product_id).first()
         if product:
-            taxes = db.query(models.TaxRate).filter(models.TaxRate.category_id == product.categories).first()
             product_amount = product.price * item.quantity
-            tax_total += taxes.rate * product_amount
+            tax_total += product.tax_rate * product_amount
             subtotal += product_amount
     
     # Get shipping cost
