@@ -172,11 +172,12 @@ async def get_orders(
     orders = db.query(models.Order).filter(models.Order.user_id == current_user.id).all()
     return orders
 
-@router.get("/{order_id}", response_model=schemas.Order)
+
+@router.get("/{order_id}")
 async def get_order(
-    order_id: int,
-    current_user: schemas.User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+        order_id: int,
+        current_user: schemas.User = Depends(get_current_active_user),
+        db: Session = Depends(get_db)
 ):
     """
     Get a specific order by ID
@@ -185,12 +186,44 @@ async def get_order(
         models.Order.id == order_id,
         models.Order.user_id == current_user.id
     ).first()
-    
+
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    
-    return order
 
+    # Convert the order to a dict and add the missing fields
+    order_dict = {
+        "id": order.id,
+        "order_number": order.order_number,
+        "user_id": order.user_id,
+        "subtotal_amount": order.subtotal_amount,
+        "total_amount": order.total_amount,
+        "tax_amount": order.tax_amount,
+        "cgst_amount": order.cgst_amount,
+        "sgst_amount": order.sgst_amount,
+        "igst_amount": order.igst_amount,
+        "shipping_amount": order.shipping_amount,
+        "discount_amount": order.discount_amount,
+        "status": order.status,
+        "payment_status": order.payment_status,
+        "payment_method": order.payment_method,
+        "payment_details": order.payment_details,
+        "shipping_address": order.shipping_address,
+        "billing_address": order.billing_address,
+        "shipping_method": order.shipping_method,
+        "tracking_number": order.tracking_number,
+        "notes": order.notes,
+        "invoice_number": order.invoice_number,
+        "invoice_date": order.invoice_date,
+        "invoice_url": order.invoice_url,
+        "created_at": order.created_at,
+        "updated_at": order.updated_at,
+        # Add the missing fields required by the schema
+        "payment_method_id": None,
+        "shipping_method_id": None,
+        "shipping_address_id": None
+    }
+
+    return order_dict
 @router.put("/{order_id}/cancel", response_model=schemas.Order)
 async def cancel_order(
     order_id: int,
