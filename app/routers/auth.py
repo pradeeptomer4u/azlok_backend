@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # JWT settings
 SECRET_KEY = "VJn8XqmoWSJZIZu6xQD6T4UfAtvgVnyO"  # In production, use a secure key and store in environment variables
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 3000000
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
