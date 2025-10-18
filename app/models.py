@@ -420,7 +420,7 @@ class Payment(Base):
     gateway = Column(String, nullable=True)  # e.g., Razorpay, Stripe
     gateway_payment_id = Column(String, nullable=True)  # ID from payment gateway
     gateway_response = Column(JSON, nullable=True)  # Full response from gateway
-    
+    gateway_order_id = Column(String, nullable=True)
     # For installment payments
     is_installment = Column(Boolean, default=False)
     installment_plan_id = Column(Integer, ForeignKey("installment_plans.id"), nullable=True)

@@ -17,11 +17,8 @@ from .payment_methods import PaymentMethodResponse
 from .auth import get_current_active_user
 from ..schemas import User
 
-router = APIRouter(
-    prefix="/payments",
-    tags=["payments"],
-    responses={404: {"description": "Not found"}},
-)
+router = APIRouter()
+
 
 # Helper functions
 def generate_payment_reference():
