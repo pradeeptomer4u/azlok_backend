@@ -67,21 +67,41 @@ except Exception as e:
 def get_db():
     max_retries = 3
     retry_delay = 1  # seconds
-    
-    for attempt in range(max_retries):
-        db = SessionLocal()
+
+    last_exc = None
+
+    for attempt in range(1, max_retries + 1):
+        db = None
         try:
-            # Test the connection with proper text() wrapper
+            db = SessionLocal()
+            # validate connection
             db.execute(text("SELECT 1"))
-            yield db
-            break
         except Exception as e:
-            db.close()
-            if attempt < max_retries - 1:
-                logger.warning(f"Database connection failed (attempt {attempt+1}/{max_retries}): {str(e)}")
-                time.sleep(retry_delay * (2 ** attempt))  # Exponential backoff
-            else:
-                logger.error(f"Database connection failed after {max_retries} attempts: {str(e)}")
-                raise
-        finally:
-            db.close()
+            # failed to create/validate session — close if open and maybe retry
+            if db is not None:
+                try:
+                    db.close()
+                except Exception:
+                    pass
+            last_exc = e
+            if attempt < max_retries:
+                logger.warning(
+                    "Database connection failed (attempt %d/%d): %s. Retrying in %s seconds.",
+                    attempt, max_retries, str(e), retry_delay * (2 ** (attempt - 1))
+                )
+                time.sleep(retry_delay * (2 ** (attempt - 1)))
+                continue
+            logger.error("Database connection failed after %d attempts: %s", max_retries, str(e))
+            raise
+        else:
+            try:
+                yield db
+            finally:
+                try:
+                    db.close()
+                except Exception as close_err:
+                    logger.exception("Error closing DB session: %s", str(close_err))
+            return
+
+    if last_exc:
+        raise last_exc

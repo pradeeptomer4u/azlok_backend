@@ -26,7 +26,7 @@ app = FastAPI(
     title="Azlok Enterprises API",
     description="API for Azlok Enterprises E-commerce Platform",
     version="1.0.0",
-    debug=True
+    debug=False
 )
 
 # Configure CORS
