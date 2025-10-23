@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: FastAPI + Mangum serverless app (HTTP API)
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Timeout: 15     # tune up if your handlers may take longer
+    MemorySize: 512
+
+Resources:
+  FastApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: fastapi-mangum
+      Handler: app.handler            # module.variable -> app.handler in app.py
+      CodeUri: .
+      AutoPublishAlias: live
+      Environment:
+        Variables:
+          ENV: production
+      Events:
+        ProxyApi:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  HttpApiUrl:
+    Description: "HTTP API endpoint"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
