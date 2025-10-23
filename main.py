@@ -4,6 +4,13 @@ from sqlalchemy.orm import Session
 import logging
 import sys
 import os
+from workers import WorkerEntrypoint
+
+class Default(WorkerEntrypoint):
+    async def fetch(self, request):
+        import asgi
+
+        return await asgi.fetch(app, request, self.env)
 
 # Configure logging
 logging.basicConfig(
