@@ -246,8 +246,7 @@ class ProductInDB(ProductBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
         
     @validator('image_urls', pre=True)
     def parse_image_urls(cls, v):
