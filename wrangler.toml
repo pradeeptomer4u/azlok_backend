@@ -1,8 +1,0 @@
-name = "fastapi-python-worker"
-main = "main.py"
-compatibility_date = "2025-10-23"
-
-account_id = "2b14c7a1e4dc8693eca31e37d18d416b"
-workers_dev = false   # set false for production + use routes/zone_id
-# If python workers are in open beta for your account you may need compatibility flags:
-compatibility_flags = ["python_workers"]

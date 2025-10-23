@@ -1,16 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 from sqlalchemy.orm import Session
 import logging
 import sys
 import os
-from workers import WorkerEntrypoint
 
-class Default(WorkerEntrypoint):
-    async def fetch(self, request):
-        import asgi
-
-        return await asgi.fetch(app, request, self.env)
 
 # Configure logging
 logging.basicConfig(
@@ -98,8 +93,10 @@ async def startup_event():
 async def shutdown_event():
     logging.info("Application shutting down")
 
-if __name__ == "__main__":
-    import uvicorn
-    # Get port from environment variable for Render compatibility
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+handler = Mangum(app)
+
+# if __name__ == "__main__":
+#     import uvicorn
+#     # Get port from environment variable for Render compatibility
+#     port = int(os.environ.get("PORT", 8000))
+#     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
