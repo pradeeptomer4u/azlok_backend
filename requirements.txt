@@ -12,3 +12,4 @@ SQLAlchemy
 python-slugify
 mangum
 workers
+python-jose[cryptography]
