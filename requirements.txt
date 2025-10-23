@@ -27,6 +27,6 @@ httpx
 jinja2
 pillow
 aiofiles
-weasyprint
+reportlab>=4.0.0
 setuptools>=68.0.0
 aiohttp
