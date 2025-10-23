@@ -4,6 +4,7 @@ fastapi
 numpy
 psycopg2-binary
 pydantic
+pydantic-settings
 razorpay==1.4.1
 redis
 requests
