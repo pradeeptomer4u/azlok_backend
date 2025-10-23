@@ -13,7 +13,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: fastapi-mangum
-      Handler: main.handler in app.py
+      Handler: main.handler
       CodeUri: .
       AutoPublishAlias: live
       Environment:
