@@ -23,7 +23,6 @@ python-multipart
 bcrypt
 alembic
 email-validator
-uuid
 httpx
 jinja2
 pillow
