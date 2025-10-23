@@ -38,6 +38,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+handler = Mangum(app)
+
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
@@ -92,8 +94,6 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     logging.info("Application shutting down")
-
-handler = Mangum(app)
 
 # if __name__ == "__main__":
 #     import uvicorn
