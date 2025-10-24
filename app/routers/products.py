@@ -231,12 +231,7 @@ async def read_products(
             except:
                 product.seller.business_address = {}
 
-    result = []
-    for p in products:
-        validated = schemas.Product.model_validate(p)  # requires model_config = {"from_attributes": True} on schemas
-        result.append(validated.model_dump())  # store/return plain dicts (safe for cache)
-
-    return result
+    return products
 
 @router.get("/search", response_model=schemas.SearchResults)
 async def search_products(
