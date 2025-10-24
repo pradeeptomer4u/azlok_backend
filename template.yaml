@@ -5,7 +5,7 @@ Description: FastAPI + Mangum serverless app (HTTP API)
 Globals:
   Function:
     Runtime: python3.13
-    Timeout: 15     # tune up if your handlers may take longer
+    Timeout: 15
     MemorySize: 512
 
 Resources:
@@ -16,9 +16,18 @@ Resources:
       Handler: main.handler
       CodeUri: .
       AutoPublishAlias: live
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
       Environment:
         Variables:
           ENV: production
+      VpcConfig:
+        SubnetIds:
+          - subnet-053c56d790725d05c
+          - subnet-00de03a2cb72415c6
+          - subnet-0f9338d0bcd52ba8d
+        SecurityGroupIds:
+          - sg-060acaa5e4eba6555
       Events:
         ProxyApi:
           Type: HttpApi
