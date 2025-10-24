@@ -930,3 +930,8 @@ curl -X PUT "http://localhost:8000/api/gate-pass/1/approve" \
 curl -X GET "http://localhost:8000/api/gate-pass/print/1" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
+
+
+[//]: # (rm -rf .aws-sam/build  )
+[//]: # (sam build  )
+[//]: # (sam deploy --guided --profile target-account)

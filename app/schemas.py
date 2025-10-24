@@ -282,7 +282,7 @@ class Product(ProductInDB):
     seller: User
     categories: List[Category] = []
     seller: User
-
+    model_config = {"from_attributes": True}
 # Cart schemas
 class CartItemBase(BaseModel):
     product_id: int
