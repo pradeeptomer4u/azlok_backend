@@ -11,7 +11,7 @@ import os
 logger = logging.getLogger(__name__)
 
 # PostgreSQL connection string
-DATABASE_URL = "postgresql://postgres:npg_Y0WE8ibnFjge@proxy-1761299629688-azlok-shopping.proxy-cnack2uoelgc.ap-south-1.rds.amazonaws.com/azlok_shopping?sslmode=require&channel_binding=require"
+DATABASE_URL = "postgresql://postgres:npg_Y0WE8ibnFjge@azlok-shopping.cnack2uoelgc.ap-south-1.rds.amazonaws.com/azlok_shopping?sslmode=require&channel_binding=require"
 
 # Redis connection
 REDIS_URL = "redis://default:neXvrqBYXo5Hwdcbm3JBRCTYyuriDgSU@redis-11813.c323.us-east-1-2.ec2.redns.redis-cloud.com:11813"
