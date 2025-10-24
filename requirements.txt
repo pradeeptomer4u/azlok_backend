@@ -13,7 +13,8 @@ SQLAlchemy
 python-slugify
 mangum
 python-jose[cryptography]
-passlib
+passlib==1.7.4
+bcrypt==3.2.2
 pyotp
 python-dotenv
 pyyaml
@@ -21,7 +22,6 @@ uvicorn
 pyjwt
 pydantic[email]
 python-multipart
-bcrypt
 alembic
 email-validator
 httpx
