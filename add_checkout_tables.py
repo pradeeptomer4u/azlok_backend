@@ -18,7 +18,7 @@ try:
 except ImportError:
     logger.error("Failed to import DATABASE_URL from app.database")
     # Fallback to the direct connection string if import fails
-    DATABASE_URL = "postgresql://postgres:npg_Y0WE8ibnFjge@azlok-shopping-private.cnack2uoelgc.ap-south-1.rds.amazonaws.com/azlok_shopping?sslmode=require&channel_binding=require"
+    DATABASE_URL = "postgresql://postgres:npg_Y0WE8ibnFjge@azlok-shopping.cnack2uoelgc.ap-south-1.rds.amazonaws.com/azlok_shopping?sslmode=require&channel_binding=require"
     logger.info("Using hardcoded DATABASE_URL as fallback")
 
 # Parse the connection string to extract components
