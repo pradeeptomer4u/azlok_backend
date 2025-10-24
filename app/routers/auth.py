@@ -18,7 +18,7 @@ SECRET_KEY = "VJn8XqmoWSJZIZu6xQD6T4UfAtvgVnyO"  # In production, use a secure k
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 3000000
 # Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt_sha256", "bcrypt"], deprecated="auto"
 
 # OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
@@ -26,7 +26,15 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 router = APIRouter()
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return pwd_context.verify(plain_password, hashed_password)
+    except ValueError:
+        # bcrypt backend throws ValueError when password > 72 bytes (or other backend issues).
+        logger.warning("Password verification failed due to backend ValueError (possible >72 bytes).")
+        return False
+    except Exception:
+        logger.exception("Unexpected error during password verification")
+        return False
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -38,8 +46,29 @@ def authenticate_user(db: Session, username: str, password: str):
         user = db.query(models.User).filter(models.User.email == username).first()
     if not user:
         return False
+    # Debug/log password length (bytes) — remove or lower log level in production
+    try:
+        pw_len = len(password.encode("utf-8"))
+        logger.debug("Authenticating user=%s password bytes length=%d", username, pw_len)
+    except Exception:
+        logger.debug("Could not measure password byte length")
+
     if not verify_password(password, user.hashed_password):
         return False
+
+    # If hash needs update (e.g., legacy bcrypt -> bcrypt_sha256), re-hash and persist
+    try:
+        if pwd_context.needs_update(user.hashed_password):
+            logger.debug("Password hash for user %s needs update; re-hashing and saving.", user.username)
+            new_hash = get_password_hash(password)
+            user.hashed_password = new_hash
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+    except Exception:
+        # don't fail authentication if rehash fails; just log it
+        logger.exception("Failed to re-hash or update password for user %s", user.username)
+
     return user
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -78,7 +107,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error: {str(e)}"
         )
-    
+
     try:
         logger.debug(f"Looking up user with username: {token_data.username}")
         user = db.query(models.User).filter(models.User.username == token_data.username).first()
