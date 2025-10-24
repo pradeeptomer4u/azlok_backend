@@ -11,10 +11,11 @@ import os
 logger = logging.getLogger(__name__)
 
 # PostgreSQL connection string
-DATABASE_URL = "postgresql://neondb_owner:npg_Y0WE8ibnFjge@ep-empty-glade-a1mnqsgm-pooler.ap-southeast-1.aws.neon.tech/azlok_shopping?sslmode=require&channel_binding=require"
+DATABASE_URL = "postgresql://neondb_owner:npg_Y0WE8ibnFjge@azlok-shopping.cnack2uoelgc.ap-south-1.rds.amazonaws.com/azlok_shopping?sslmode=require&channel_binding=require"
 
 # Redis connection
 REDIS_URL = "redis://default:neXvrqBYXo5Hwdcbm3JBRCTYyuriDgSU@redis-11813.c323.us-east-1-2.ec2.redns.redis-cloud.com:11813"
+
 
 # Create SQLAlchemy engine with connection pooling
 engine = create_engine(
