@@ -16,7 +16,6 @@ Resources:
       Handler: main.handler
       CodeUri: .
       AutoPublishAlias: live
-      Role: arn:aws:iam::493290349123:role/azlok-app-FastApiFunctionRole-96gEtjhye1xe
       Environment:
         Variables:
           ENV: production
