@@ -28,7 +28,7 @@ Resources:
           - subnet-0f9338d0bcd52ba8d
         SecurityGroupIds:
           - sg-05b53f16196c80299
-          - sg-0b0a134157ab5def3
+          - sg-015e515c29708be80
       Events:
         ProxyApi:
           Type: HttpApi
