@@ -119,7 +119,7 @@ async def create_product(
 
 @router.get("/", response_model=List[schemas.Product])
 @cached(expire=300, key_prefix="products")  # Cache for 5 minutes
-async def read_products(
+def read_products(
     skip: int = 0,
     limit: int = 100,
     search: Optional[str] = None,
