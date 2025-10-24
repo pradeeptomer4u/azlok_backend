@@ -16,7 +16,6 @@ DATABASE_URL = "postgresql://postgres:npg_Y0WE8ibnFjge@azlok-shopping.cnack2uoel
 # Redis connection
 REDIS_URL = "redis://default:neXvrqBYXo5Hwdcbm3JBRCTYyuriDgSU@redis-11813.c323.us-east-1-2.ec2.redns.redis-cloud.com:11813"
 
-
 # Create SQLAlchemy engine with connection pooling
 engine = create_engine(
     DATABASE_URL,

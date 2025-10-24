@@ -16,19 +16,9 @@ Resources:
       Handler: main.handler
       CodeUri: .
       AutoPublishAlias: live
-      Policies:
-        - AWSLambdaVPCAccessExecutionRole
       Environment:
         Variables:
           ENV: production
-      VpcConfig:
-        SubnetIds:
-          - subnet-053c56d790725d05c
-          - subnet-00de03a2cb72415c6
-          - subnet-0f9338d0bcd52ba8d
-        SecurityGroupIds:
-          - sg-05b53f16196c80299
-          - sg-015e515c29708be80
       Events:
         ProxyApi:
           Type: HttpApi
