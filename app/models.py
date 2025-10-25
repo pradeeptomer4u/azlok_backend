@@ -186,7 +186,7 @@ class User(Base):
     products = relationship("Product", back_populates="seller", foreign_keys=[Product.seller_id])
     cart_items = relationship("CartItem", back_populates="user")
     orders = relationship("Order", back_populates="user")
-    documents = relationship("Document", foreign_keys=[Document.user_id])
+    documents = relationship("Document", foreign_keys=[Document.user_id], back_populates="user")
     certifications = relationship("Certification", back_populates="user")
     awards = relationship("Award", back_populates="user")
     testimonials = relationship("Testimonial", back_populates="user")
