@@ -10,6 +10,7 @@ from .. import models, schemas
 from ..database import get_db
 from .auth import get_current_active_user
 from ..cache import cached, invalidate_products_cache, invalidate_product_cache, redis_client
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
@@ -231,7 +232,7 @@ def read_products(
             except:
                 product.seller.business_address = {}
 
-    return [schemas.Product.model_validate(product) for product in products]
+    return [jsonable_encoder(product) for product in products]
 
 
 @router.get("/search", response_model=schemas.SearchResults)
