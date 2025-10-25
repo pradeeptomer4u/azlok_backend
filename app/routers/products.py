@@ -137,11 +137,11 @@ def read_products(
     db: Session = Depends(get_db)
 ):
     query = db.query(models.Product).filter(models.Product.approval_status == models.ApprovalStatus.APPROVED)
-    
+
     # Apply category filter if provided
     if category_id:
         query = query.join(models.Product.categories).filter(models.Category.id == category_id)
-    
+
     # Apply featured filter if provided
     # For now, we'll consider products with higher stock as featured
     # In a real implementation, you might want to add a is_featured column to the Product model
@@ -150,7 +150,7 @@ def read_products(
             # For demonstration, we'll consider products with stock > 10 as featured
             # This is a temporary solution until a proper is_featured field is added
             query = query.filter(models.Product.stock_quantity > 10)
-            
+
     # Apply bestseller filter if provided
     # For now, we'll consider products with highest stock quantity as bestsellers
     if is_bestseller is not None:
@@ -159,7 +159,7 @@ def read_products(
             query = query.filter(models.Product.stock_quantity > 20)
             # Order by stock quantity descending to get the true bestsellers first
             query = query.order_by(models.Product.stock_quantity.desc())
-    
+
     # Apply sorting if provided
     if sort_by and not is_bestseller:  # Don't override bestseller sorting
         if sort_by == "price":
@@ -182,60 +182,71 @@ def read_products(
                 query = query.order_by(desc(models.Product.created_at))
             else:
                 query = query.order_by(asc(models.Product.created_at))
-    
+
     # Use size parameter if provided, otherwise use limit
     if size is not None:
         limit = size
-    
+
     products = query.offset(skip).limit(limit).all()
-    
-    # Process products to handle JSON fields
+    result = []
+
+    # First convert all products to dictionaries
     for product in products:
-        # Parse image_urls from JSON string to list
+        product_dict = jsonable_encoder(product)
+
+        # Now modify the dictionary fields as needed
         if product.image_urls:
             try:
-                product.image_urls = json.loads(product.image_urls)
+                product_dict["image_urls"] = json.loads(product.image_urls)
             except:
-                product.image_urls = []
+                product_dict["image_urls"] = []
         else:
-            product.image_urls = []
-            
-        # Parse gst_details if present
+            product_dict["image_urls"] = []
+
+        # Handle gst_details
         if product.gst_details and isinstance(product.gst_details, str):
             try:
                 gst_data = json.loads(product.gst_details)
-                product.gst_details = gst_data
-                
-                # Extract features from gst_details
-                if 'features' in gst_data:
-                    product.features = gst_data['features']
-                else:
-                    product.features = []
-                
-                # Extract specifications from gst_details
-                if 'specifications' in gst_data:
-                    product.specifications = gst_data['specifications']
-                else:
-                    product.specifications = []
-            except:
-                product.gst_details = {}
-                product.features = []
-                product.specifications = []
-        else:
-            product.features = []
-            product.specifications = []
-                
-        # Handle seller's business_address if present
-        if product.seller and product.seller.business_address and isinstance(product.seller.business_address, str):
-            try:
-                product.seller.business_address = json.loads(product.seller.business_address)
-            except:
-                product.seller.business_address = {}
-        if product.categories:
-            product.categories = [{"id": cat.id, "name": cat.name, "slug": cat.slug, "description": cat.description}
-                                  for cat in product.categories]
+                product_dict["gst_details"] = gst_data
 
-    return [jsonable_encoder(product) for product in products]
+                if 'features' in gst_data:
+                    product_dict["features"] = gst_data['features']
+                else:
+                    product_dict["features"] = []
+
+                if 'specifications' in gst_data:
+                    product_dict["specifications"] = gst_data['specifications']
+                else:
+                    product_dict["specifications"] = []
+            except:
+                product_dict["gst_details"] = {}
+                product_dict["features"] = []
+                product_dict["specifications"] = []
+        else:
+            product_dict["features"] = []
+            product_dict["specifications"] = []
+
+        # Handle seller's business_address - KEEP THE ORIGINAL SELLER OBJECT
+        if product.seller:
+            # If seller is missing from the dictionary, add it
+            if "seller" not in product_dict:
+                product_dict["seller"] = jsonable_encoder(product.seller)
+
+            # Process seller's business_address
+            if product.seller.business_address and isinstance(product.seller.business_address, str):
+                try:
+                    product_dict["seller"]["business_address"] = json.loads(product.seller.business_address)
+                except:
+                    product_dict["seller"]["business_address"] = {}
+
+        # For categories, ensure all required fields are included
+        if product.categories:
+            # Use jsonable_encoder on each category to ensure all fields are included
+            product_dict["categories"] = [jsonable_encoder(cat) for cat in product.categories]
+
+        result.append(product_dict)
+
+    return result
 
 
 @router.get("/search", response_model=schemas.SearchResults)
@@ -337,8 +348,7 @@ async def search_products(
 @cached(expire=600, key_prefix="products")  # Cache for 10 minutes
 async def read_product(product_id: int, db: Session = Depends(get_db)):
     # Invalidate the cache for this product to ensure we get fresh data
-    invalidate_product_cache(product_id)
-    
+    product_dict = {}
     product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if product is None:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -352,42 +362,52 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
     # Parse image_urls from JSON string to list
     if product.image_urls:
         try:
-            product.image_urls = json.loads(product.image_urls)
+            product_dict["image_urls"] = json.loads(product.image_urls)
         except:
-            product.image_urls = []
+            product_dict["image_urls"] = []
     else:
-        product.image_urls = []
-        
-    # Parse gst_details if present
+        product_dict["image_urls"] = []
+
+    # Handle gst_details
     if product.gst_details and isinstance(product.gst_details, str):
         try:
             gst_data = json.loads(product.gst_details)
-            product.gst_details = gst_data
-            
-            # Extract features from gst_details
+            product_dict["gst_details"] = gst_data
+
             if 'features' in gst_data:
-                product.features = gst_data['features']
-            
-            # Extract specifications from gst_details
+                product_dict["features"] = gst_data['features']
+            else:
+                product_dict["features"] = []
+
             if 'specifications' in gst_data:
-                product.specifications = gst_data['specifications']
+                product_dict["specifications"] = gst_data['specifications']
+            else:
+                product_dict["specifications"] = []
         except:
-            product.gst_details = {}
-            product.features = []
-            product.specifications = []
+            product_dict["gst_details"] = {}
+            product_dict["features"] = []
+            product_dict["specifications"] = []
     else:
-        product.features = []
-        product.specifications = []
-            
-    # Handle seller's business_address if present
-    if product.seller and product.seller.business_address and isinstance(product.seller.business_address, str):
-        try:
-            product.seller.business_address = json.loads(product.seller.business_address)
-        except:
-            product.seller.business_address = {}
+        product_dict["features"] = []
+        product_dict["specifications"] = []
+
+    # Handle seller's business_address - KEEP THE ORIGINAL SELLER OBJECT
+    if product.seller:
+        # If seller is missing from the dictionary, add it
+        if "seller" not in product_dict:
+            product_dict["seller"] = jsonable_encoder(product.seller)
+
+        # Process seller's business_address
+        if product.seller.business_address and isinstance(product.seller.business_address, str):
+            try:
+                product_dict["seller"]["business_address"] = json.loads(product.seller.business_address)
+            except:
+                product_dict["seller"]["business_address"] = {}
+
+    # For categories, ensure all required fields are included
     if product.categories:
-        product.categories = [{"id": cat.id, "name": cat.name, "slug": cat.slug,"description": cat.description }
-                              for  cat in product.categories]
+        # Use jsonable_encoder on each category to ensure all fields are included
+        product_dict["categories"] = [jsonable_encoder(cat) for cat in product.categories]
     return jsonable_encoder(product)
 
 @router.put("/{product_id}", response_model=schemas.Product)
