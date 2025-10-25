@@ -104,7 +104,7 @@ async def read_all_categories(
 ):
     # Get all categories regardless of parent
     categories = db.query(models.Category).offset(skip).limit(limit).all()
-    return [schemas.Category.from_orm(cat) for cat in categories]
+    return [schemas.Category.model_validate(cat) for cat in categories]
 
 @router.get("/{category_id}", response_model=schemas.Category)
 @cached(expire=600, key_prefix="categories")  # Cache for 10 minutes
@@ -112,7 +112,7 @@ async def read_category(category_id: int, db: Session = Depends(get_db)):
     category = db.query(models.Category).filter(models.Category.id == category_id).first()
     if category is None:
         raise HTTPException(status_code=404, detail="Category not found")
-    return schemas.Category.from_orm(category)
+    return schemas.Category.model_validate(category)
 
 @router.put("/{category_id}", response_model=schemas.Category)
 async def update_category(
