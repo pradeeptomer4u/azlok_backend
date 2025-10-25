@@ -231,6 +231,8 @@ def read_products(
                 product.seller.business_address = json.loads(product.seller.business_address)
             except:
                 product.seller.business_address = {}
+        if product.categories:
+            product.categories = [jsonable_encoder(category) for category in product.categories]
 
     return [jsonable_encoder(product) for product in products]
 
