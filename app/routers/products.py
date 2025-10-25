@@ -232,7 +232,8 @@ def read_products(
             except:
                 product.seller.business_address = {}
         if product.categories:
-            product.categories = [jsonable_encoder(category) for category in product.categories]
+            product.categories = [{"id": cat.id, "name": cat.name, "slug": cat.slug, "description": cat.description}
+                                  for cat in product.categories]
 
     return [jsonable_encoder(product) for product in products]
 
@@ -385,7 +386,8 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
         except:
             product.seller.business_address = {}
     if product.categories:
-        product.categories = [jsonable_encoder(category) for category in product.categories]
+        product.categories = [{"id": cat.id, "name": cat.name, "slug": cat.slug,"description": cat.description }
+                              for  cat in product.categories]
     return jsonable_encoder(product)
 
 @router.put("/{product_id}", response_model=schemas.Product)
