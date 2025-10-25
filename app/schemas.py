@@ -132,7 +132,8 @@ class UserInDB(UserBase):
         return v
 
 class User(UserInDB):
-    pass
+    class Config:
+        from_attributes = True
 
 # Category schemas
 class CategoryBase(BaseModel):
