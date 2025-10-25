@@ -234,7 +234,7 @@ def read_products(
     return [schemas.Product.model_validate(product) for product in products]
 
 
-@router.get("/search", response_model=schemas.SearchResults)
+@router.get("/search", response_model=List[schemas.Product])
 async def search_products(
     query: str,
     category_id: Optional[int] = None,
