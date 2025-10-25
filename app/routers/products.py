@@ -384,7 +384,8 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
             product.seller.business_address = json.loads(product.seller.business_address)
         except:
             product.seller.business_address = {}
-    
+    if product.categories:
+        product.categories = [jsonable_encoder(category) for category in product.categories]
     return jsonable_encoder(product)
 
 @router.put("/{product_id}", response_model=schemas.Product)
