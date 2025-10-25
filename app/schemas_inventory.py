@@ -85,7 +85,7 @@ class InventoryItem(InventoryItemBase):
     updated_at: Optional[datetime] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Packaged Product Schemas
 class PackagedProductBase(BaseModel):
@@ -122,7 +122,7 @@ class PackagedProduct(PackagedProductBase):
     product: Optional[schemas.Product] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Stock Movement Schemas
 class StockMovementBase(BaseModel):
@@ -146,7 +146,7 @@ class StockMovement(StockMovementBase):
     inventory_item: Optional[InventoryItem] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Packaged Product Movement Schemas
 class PackagedProductMovementBase(BaseModel):
@@ -170,7 +170,7 @@ class PackagedProductMovement(PackagedProductMovementBase):
     packaged_product: Optional[PackagedProduct] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Bill of Materials Schemas
 class BillOfMaterialItemBase(BaseModel):
@@ -188,7 +188,7 @@ class BillOfMaterialItem(BillOfMaterialItemBase):
     inventory_item: Optional[InventoryItem] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class BillOfMaterialBase(BaseModel):
     product_id: int
@@ -208,7 +208,7 @@ class BillOfMaterial(BillOfMaterialBase):
     items: List[BillOfMaterialItem] = []
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Production Batch Schemas
 class ProductionBatchPackagingBase(BaseModel):
@@ -226,7 +226,7 @@ class ProductionBatchPackaging(ProductionBatchPackagingBase):
     packaged_product: Optional[PackagedProduct] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ProductionBatchBase(BaseModel):
     product_id: int
@@ -249,7 +249,7 @@ class ProductionBatch(ProductionBatchBase):
     packaged_items: List[ProductionBatchPackaging] = []
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Supplier Schemas
 class SupplierBase(BaseModel):
@@ -288,7 +288,7 @@ class Supplier(SupplierBase):
     updated_at: Optional[datetime] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Purchase Indent Schemas
 class PurchaseIndentItemBase(BaseModel):
@@ -307,7 +307,7 @@ class PurchaseIndentItem(PurchaseIndentItemBase):
     inventory_item: Optional[InventoryItem] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PurchaseIndentBase(BaseModel):
     department: Optional[str] = None
@@ -330,7 +330,7 @@ class PurchaseIndent(PurchaseIndentBase):
     items: List[PurchaseIndentItem] = []
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Purchase Order Schemas
 class PurchaseOrderItemBase(BaseModel):
@@ -356,7 +356,7 @@ class PurchaseOrderItem(PurchaseOrderItemBase):
     inventory_item: Optional[InventoryItem] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PurchaseOrderBase(BaseModel):
     supplier_id: int
@@ -388,7 +388,7 @@ class PurchaseOrder(PurchaseOrderBase):
     supplier: Optional[Supplier] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Purchase Receipt Schemas
 class PurchaseReceiptItemBase(BaseModel):
@@ -410,7 +410,7 @@ class PurchaseReceiptItem(PurchaseReceiptItemBase):
     po_item: Optional[PurchaseOrderItem] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PurchaseReceiptBase(BaseModel):
     po_id: int
@@ -431,7 +431,7 @@ class PurchaseReceipt(PurchaseReceiptBase):
     purchase_order: Optional[PurchaseOrder] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Gate Pass Schemas
 class GatePassItemBase(BaseModel):
@@ -449,7 +449,7 @@ class GatePassItem(GatePassItemBase):
     gate_pass_id: int
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class GatePassBase(BaseModel):
     pass_type: GatePassType
@@ -475,7 +475,7 @@ class GatePass(GatePassBase):
     items: List[GatePassItem] = []
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Stock Status Response
 class StockStatusItem(BaseModel):
@@ -489,7 +489,7 @@ class StockStatusItem(BaseModel):
     status: str  # "normal", "low", "critical"
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class StockStatus(BaseModel):
     items: List[StockStatusItem]
@@ -510,7 +510,7 @@ class PackagedProductStockItem(BaseModel):
     status: str  # "normal", "low", "critical"
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PackagedProductStock(BaseModel):
     items: List[PackagedProductStockItem]

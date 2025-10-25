@@ -162,6 +162,8 @@ class CategoryInDB(CategoryBase):
 class Category(CategoryInDB):
     subcategories: List["Category"] = []
 
+    class Config:
+        from_attributes = True
 # Product schemas
 class GSTDetails(BaseModel):
     hsn_code: Optional[str] = None
@@ -282,7 +284,9 @@ class Product(ProductInDB):
     seller: User
     categories: List[Category] = []
     seller: User
-    model_config = {"from_attributes": True}
+
+    class Config:
+        from_attributes = True
 # Cart schemas
 class CartItemBase(BaseModel):
     product_id: int

@@ -231,7 +231,8 @@ def read_products(
             except:
                 product.seller.business_address = {}
 
-    return products
+    return [schemas.Product.model_validate(product) for product in products]
+
 
 @router.get("/search", response_model=schemas.SearchResults)
 async def search_products(

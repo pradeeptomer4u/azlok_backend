@@ -64,7 +64,7 @@ class LogisticsProviderInDB(LogisticsProviderBase):
     updated_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class LogisticsProvider(LogisticsProviderInDB):
     pass
@@ -129,7 +129,7 @@ class ShipmentInDB(ShipmentBase):
     updated_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Shipment Tracking schemas
 class ShipmentTrackingBase(BaseModel):
@@ -147,7 +147,7 @@ class ShipmentTrackingInDB(ShipmentTrackingBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ShipmentTracking(ShipmentTrackingInDB):
     pass
@@ -172,7 +172,7 @@ class DeliveryAttemptInDB(DeliveryAttemptBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class DeliveryAttempt(DeliveryAttemptInDB):
     pass

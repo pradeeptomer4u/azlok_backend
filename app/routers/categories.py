@@ -93,7 +93,7 @@ async def read_categories(
         query = query.filter(models.Category.parent_id.is_(None))
     
     categories = query.offset(skip).limit(limit).all()
-    return [schemas.Category.from_orm(cat) for cat in categories]
+    return [schemas.Category.model_validate(cat) for cat in categories]
 
 @router.get("/all", response_model=List[schemas.Category])
 @cached(expire=600, key_prefix="categories")  # Cache for 10 minutes
