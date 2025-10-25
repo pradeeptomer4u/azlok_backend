@@ -383,7 +383,7 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
         except:
             product.seller.business_address = {}
     
-    return schemas.Product.model_validate(product)
+    return jsonable_encoder(product)
 
 @router.put("/{product_id}", response_model=schemas.Product)
 async def update_product(
