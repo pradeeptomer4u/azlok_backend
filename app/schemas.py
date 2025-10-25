@@ -132,6 +132,7 @@ class UserInDB(UserBase):
         return v
 
 class User(UserInDB):
+    pass
     class Config:
         from_attributes = True
 
@@ -567,7 +568,8 @@ class TaxRateInDB(TaxRateBase):
 
 class TaxRate(TaxRateInDB):
     pass
-
+    class Config:
+        from_attributes = True
 
 # Margin Setting schemas
 class MarginSettingBase(BaseModel):
@@ -599,7 +601,8 @@ class MarginSettingInDB(MarginSettingBase):
 
 class MarginSetting(MarginSettingInDB):
     pass
-
+    class Config:
+        from_attributes = True
 
 # Tax Calculation schemas
 class TaxCalculationItem(BaseModel):
@@ -712,7 +715,8 @@ class PaymentMethodInDB(PaymentMethodBase):
 class PaymentMethod(PaymentMethodInDB):
     # Remove the validator since the field is named 'metadata', not 'payment_metadata'
     pass
-
+    class Config:
+        from_attributes = True
 
 # Transaction Schemas
 class TransactionType(str, Enum):
@@ -757,7 +761,8 @@ class TransactionInDB(TransactionBase):
 
 class Transaction(TransactionInDB):
     pass
-
+    class Config:
+        from_attributes = True
 
 # Payment Schemas
 class InstallmentPlanBase(BaseModel):
@@ -788,6 +793,8 @@ class InstallmentPlanInDB(InstallmentPlanBase):
 
 class InstallmentPlan(InstallmentPlanInDB):
     pass
+    class Config:
+        from_attributes = True
 
 
 class PaymentBase(BaseModel):
@@ -998,14 +1005,16 @@ class InvoiceInDB(InvoiceBase):
 
 class InvoiceResponse(InvoiceInDB):
     pass
-
+    class Config:
+        from_attributes = True
 
 class InvoiceDetailResponse(InvoiceInDB):
     user: User
     seller: Optional[User] = None
     order: Optional[Order] = None
     line_items: List[InvoiceLineItem] = []
-
+    class Config:
+        from_attributes = True
 
 class InvoiceListResponse(BaseModel):
     invoices: List[InvoiceResponse]
