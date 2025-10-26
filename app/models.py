@@ -158,6 +158,7 @@ class Product(Base):
     categories = relationship("Category", secondary=product_category, back_populates="products")
     cart_items = relationship("CartItem", back_populates="product")
     documents = relationship("Document", back_populates="product")
+    product_detail = relationship("ProductDetailContent", back_populates="product", uselist=False)
 
 class User(Base):
     __tablename__ = "users"
@@ -226,6 +227,46 @@ class CartItem(Base):
     user = relationship("User", back_populates="cart_items")
     product = relationship("Product", back_populates="cart_items")
 
+
+class ProductDetailContent(Base):
+    __tablename__ = "product_details_content"
+
+    id = Column(Integer, primary_key=True, index=True)
+    brand = Column(String, nullable=True)
+    title = Column(String, nullable=True)
+    history = Column(Text, nullable=True)
+    science = Column(Text, nullable=True)
+    ayurveda = Column(Text, nullable=True)
+    modern = Column(Text, nullable=True)
+    title_hi = Column(String, nullable=True)
+    history_hi = Column(Text, nullable=True)
+    science_hi = Column(Text, nullable=True)
+    ayurveda_hi = Column(Text, nullable=True)
+    modern_hi = Column(Text, nullable=True)
+    brand_hi = Column(Text, nullable=True)
+    questions1 = Column(Text, nullable=True)
+    questions1_hi = Column(Text, nullable=True)
+    questions2 = Column(Text, nullable=True)
+    questions2_hi = Column(Text, nullable=True)
+    questions3 = Column(Text, nullable=True)
+    questions3_hi = Column(Text, nullable=True)
+    questions4 = Column(Text, nullable=True)
+    questions4_hi = Column(Text, nullable=True)
+    questions5 = Column(Text, nullable=True)
+    questions5_hi = Column(Text, nullable=True)
+    answer1 = Column(Text, nullable=True)
+    answer1_hi = Column(Text, nullable=True)
+    answer2 = Column(Text, nullable=True)
+    answer2_hi = Column(Text, nullable=True)
+    answer3 = Column(Text, nullable=True)
+    answer3_hi = Column(Text, nullable=True)
+    answer4 = Column(Text, nullable=True)
+    answer4_hi = Column(Text, nullable=True)
+    answer5 = Column(Text, nullable=True)
+    answer5_hi = Column(Text, nullable=True)
+
+    product_id = Column(Integer, ForeignKey("products.id"))
+    product = relationship("Product", back_populates="product_detail", uselist=False)
 
 class Order(Base):
     __tablename__ = "orders"

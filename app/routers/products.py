@@ -410,6 +410,24 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
         product_dict["categories"] = [jsonable_encoder(cat) for cat in product.categories]
     return jsonable_encoder(product)
 
+
+@router.get("/detail-content/{slug}")
+async def get_product_detail_content_by_slug(
+    slug: str,
+    db: Session = Depends(get_db)
+):
+    product = db.query(models.Product).filter(models.Product.slug == slug).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Then get the product detail content
+    product_detail_content = db.query(models.ProductDetailContent).filter(
+        models.ProductDetailContent.product_id == product.id
+    ).first()
+    if product_detail_content is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return jsonable_encoder(product_detail_content)
+
 @router.put("/{product_id}", response_model=schemas.Product)
 async def update_product(
     product_id: int,
