@@ -177,6 +177,7 @@ class GSTDetails(BaseModel):
 class ProductBase(BaseModel):
     name: str
     description: str
+    description_hi: str = None
     base_price: float = 0.0  # Price before margin
     price: float  # Final price after margin
     stock_quantity: int = 0
