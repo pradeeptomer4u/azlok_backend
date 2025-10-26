@@ -130,6 +130,7 @@ class Product(Base):
     slug = Column(String, unique=True, index=True)
     sku = Column(String, unique=True, index=True)
     description = Column(Text)
+    description_hi = Column(Text, nullable=True)
     base_price = Column(Float)  # Base price before margin
     price = Column(Float)  # Final price after margin
     stock_quantity = Column(Integer, default=0)
