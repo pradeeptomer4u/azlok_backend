@@ -130,7 +130,7 @@ def read_products(
     sort_by: Optional[str] = None,
     sort_order: Optional[str] = "asc",
     approval_status: Optional[models.ApprovalStatus] = None,
-    seller_id: Optional[int] = None,
+    slug: Optional[str] = None,
     is_featured: Optional[bool] = None,
     is_bestseller: Optional[bool] = None,
     size: Optional[int] = None,
@@ -186,7 +186,8 @@ def read_products(
     # Use size parameter if provided, otherwise use limit
     if size is not None:
         limit = size
-
+    if slug:
+        query = query.filter(models.Product.slug == slug)
     products = query.offset(skip).limit(limit).all()
     result = []
 
