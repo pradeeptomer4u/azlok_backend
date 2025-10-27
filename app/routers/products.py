@@ -142,22 +142,13 @@ def read_products(
     if category_id:
         query = query.join(models.Product.categories).filter(models.Category.id == category_id)
 
-    # Apply featured filter if provided
-    # For now, we'll consider products with higher stock as featured
-    # In a real implementation, you might want to add a is_featured column to the Product model
     if is_featured is not None:
         if is_featured:
-            # For demonstration, we'll consider products with stock > 10 as featured
-            # This is a temporary solution until a proper is_featured field is added
-            query = query.filter(models.Product.stock_quantity > 10)
+            query = query.filter(models.Product.is_featured == True)
 
-    # Apply bestseller filter if provided
-    # For now, we'll consider products with highest stock quantity as bestsellers
     if is_bestseller is not None:
         if is_bestseller:
-            # For demonstration, we'll consider products with stock > 20 as bestsellers
-            query = query.filter(models.Product.stock_quantity > 20)
-            # Order by stock quantity descending to get the true bestsellers first
+            query = query.filter(models.Product.is_bestseller == True)
             query = query.order_by(models.Product.stock_quantity.desc())
 
     # Apply sorting if provided
