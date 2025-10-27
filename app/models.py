@@ -1,4 +1,7 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Float, DateTime, Enum, Table, JSON, Date
+from typing import Optional, List, Dict
+
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Float, DateTime, Enum, Table, JSON, Date, \
+    ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -160,7 +163,147 @@ class Product(Base):
     cart_items = relationship("CartItem", back_populates="product")
     documents = relationship("Document", back_populates="product")
     product_detail = relationship("ProductDetailContent", back_populates="product", uselist=False)
+    nutritional_details = relationship("ProductNutritionalDetail", back_populates="product", uselist=False)
 
+
+class ProductNutritionalDetail(Base):
+    """Model for storing detailed product information including research, sources, and nutrition."""
+    __tablename__ = "product_nutritional_details"
+
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+
+    # Source information
+    source_region = Column(Text, nullable=True)
+    source_wikipedia = Column(ARRAY(Text), nullable=True)
+    source_url = Column(Text, nullable=True)
+    manufacturing_process = Column(Text, nullable=True)
+
+    # Research papers - simplified to array of links
+    research_papers = Column(ARRAY(Text), nullable=True)
+
+    # Nutrition data with values and units separately
+    calories = Column(Float, nullable=True)
+    calories_unit = Column(String(10), default="kcal")
+
+    protein = Column(Float, nullable=True)
+    protein_unit = Column(String(10), default="g")
+
+    carbohydrates = Column(Float, nullable=True)
+    carbohydrates_unit = Column(String(10), default="g")
+
+    total_fat = Column(Float, nullable=True)
+    total_fat_unit = Column(String(10), default="g")
+
+    fiber = Column(Float, nullable=True)
+    fiber_unit = Column(String(10), default="g")
+
+    sugar = Column(Float, nullable=True)
+    sugar_unit = Column(String(10), default="g")
+
+    sodium = Column(Float, nullable=True)
+    sodium_unit = Column(String(10), default="mg")
+
+    # Additional minerals with values and units separately
+    potassium = Column(Float, nullable=True)
+    potassium_unit = Column(String(10), default="mg")
+
+    calcium = Column(Float, nullable=True)
+    calcium_unit = Column(String(10), default="mg")
+
+    iron = Column(Float, nullable=True)
+    iron_unit = Column(String(10), default="mg")
+
+    magnesium = Column(Float, nullable=True)
+    magnesium_unit = Column(String(10), default="mg")
+
+    phosphorus = Column(Float, nullable=True)
+    phosphorus_unit = Column(String(10), default="mg")
+
+    zinc = Column(Float, nullable=True)
+    zinc_unit = Column(String(10), default="mg")
+
+    # Vitamins with values and units separately
+    vitamin_a = Column(Float, nullable=True)
+    vitamin_a_unit = Column(String(10), default="IU")
+
+    vitamin_c = Column(Float, nullable=True)
+    vitamin_c_unit = Column(String(10), default="mg")
+
+    vitamin_d = Column(Float, nullable=True)
+    vitamin_d_unit = Column(String(10), default="IU")
+
+    vitamin_e = Column(Float, nullable=True)
+    vitamin_e_unit = Column(String(10), default="mg")
+
+    vitamin_k = Column(Float, nullable=True)
+    vitamin_k_unit = Column(String(10), default="mcg")
+
+    thiamin = Column(Float, nullable=True)
+    thiamin_unit = Column(String(10), default="mg")
+
+    riboflavin = Column(Float, nullable=True)
+    riboflavin_unit = Column(String(10), default="mg")
+
+    niacin = Column(Float, nullable=True)
+    niacin_unit = Column(String(10), default="mg")
+
+    vitamin_b6 = Column(Float, nullable=True)
+    vitamin_b6_unit = Column(String(10), default="mg")
+
+    folate = Column(Float, nullable=True)
+    folate_unit = Column(String(10), default="mcg")
+
+    vitamin_b12 = Column(Float, nullable=True)
+    vitamin_b12_unit = Column(String(10), default="mcg")
+
+    # Additional nutritional information
+    glycemic_index = Column(Float, nullable=True)
+    antioxidants = Column(Text, nullable=True)  # Changed from JSON to Text
+    allergens = Column(ARRAY(String), nullable=True)
+
+    # Additional fields for fats breakdown with values and units separately
+    saturated_fat = Column(Float, nullable=True)
+    saturated_fat_unit = Column(String(10), default="g")
+
+    monounsaturated_fat = Column(Float, nullable=True)
+    monounsaturated_fat_unit = Column(String(10), default="g")
+
+    polyunsaturated_fat = Column(Float, nullable=True)
+    polyunsaturated_fat_unit = Column(String(10), default="g")
+
+    trans_fat = Column(Float, nullable=True)
+    trans_fat_unit = Column(String(10), default="g")
+
+    cholesterol = Column(Float, nullable=True)
+    cholesterol_unit = Column(String(10), default="mg")
+
+    # Additional fields for carbs breakdown with values and units separately
+    dietary_fiber = Column(Float, nullable=True)
+    dietary_fiber_unit = Column(String(10), default="g")
+
+    soluble_fiber = Column(Float, nullable=True)
+    soluble_fiber_unit = Column(String(10), default="g")
+
+    insoluble_fiber = Column(Float, nullable=True)
+    insoluble_fiber_unit = Column(String(10), default="g")
+
+    # Units of measurement
+    serving_size = Column(String(100), nullable=True)
+    serving_unit = Column(String(50), nullable=True)
+
+    # Additional information
+    notes = Column(Text, nullable=True)
+    health_benefits = Column(Text, nullable=True)
+    contraindications = Column(Text, nullable=True)
+
+    # Metadata
+    created_at = Column(String, default=lambda: datetime.utcnow().isoformat())
+    updated_at = Column(String, default=lambda: datetime.utcnow().isoformat(),
+                        onupdate=lambda: datetime.utcnow().isoformat())
+
+    # Relationship
+    product = relationship("Product", back_populates="nutritional_details")
 class User(Base):
     __tablename__ = "users"
 

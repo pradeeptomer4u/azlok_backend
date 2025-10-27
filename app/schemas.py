@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, validator, model_validator
+from pydantic import BaseModel, EmailStr, Field, validator, model_validator, HttpUrl
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
@@ -1174,3 +1174,151 @@ class UserAddress(UserAddressBase):
 
     class Config:
         from_attributes = True
+
+
+class ProductNutritionalDetailBase(BaseModel):
+    # Source information
+    source_region: Optional[str] = None
+    source_wikipedia: Optional[List[str]] = None
+    source_url: Optional[str] = None
+    manufacturing_process: Optional[str] = None
+
+    # Research papers - simplified to array of links
+    research_papers: Optional[List[str]] = None
+
+    # Nutrition data with values and units separately
+    calories: Optional[float] = None
+    calories_unit: Optional[str] = "kcal"
+
+    protein: Optional[float] = None
+    protein_unit: Optional[str] = "g"
+
+    carbohydrates: Optional[float] = None
+    carbohydrates_unit: Optional[str] = "g"
+
+    total_fat: Optional[float] = None
+    total_fat_unit: Optional[str] = "g"
+
+    fiber: Optional[float] = None
+    fiber_unit: Optional[str] = "g"
+
+    sugar: Optional[float] = None
+    sugar_unit: Optional[str] = "g"
+
+    sodium: Optional[float] = None
+    sodium_unit: Optional[str] = "mg"
+
+    # Additional minerals with values and units separately
+    potassium: Optional[float] = None
+    potassium_unit: Optional[str] = "mg"
+
+    calcium: Optional[float] = None
+    calcium_unit: Optional[str] = "mg"
+
+    iron: Optional[float] = None
+    iron_unit: Optional[str] = "mg"
+
+    magnesium: Optional[float] = None
+    magnesium_unit: Optional[str] = "mg"
+
+    phosphorus: Optional[float] = None
+    phosphorus_unit: Optional[str] = "mg"
+
+    zinc: Optional[float] = None
+    zinc_unit: Optional[str] = "mg"
+
+    # Vitamins with values and units separately
+    vitamin_a: Optional[float] = None
+    vitamin_a_unit: Optional[str] = "IU"
+
+    vitamin_c: Optional[float] = None
+    vitamin_c_unit: Optional[str] = "mg"
+
+    vitamin_d: Optional[float] = None
+    vitamin_d_unit: Optional[str] = "IU"
+
+    vitamin_e: Optional[float] = None
+    vitamin_e_unit: Optional[str] = "mg"
+
+    vitamin_k: Optional[float] = None
+    vitamin_k_unit: Optional[str] = "mcg"
+
+    thiamin: Optional[float] = None
+    thiamin_unit: Optional[str] = "mg"
+
+    riboflavin: Optional[float] = None
+    riboflavin_unit: Optional[str] = "mg"
+
+    niacin: Optional[float] = None
+    niacin_unit: Optional[str] = "mg"
+
+    vitamin_b6: Optional[float] = None
+    vitamin_b6_unit: Optional[str] = "mg"
+
+    folate: Optional[float] = None
+    folate_unit: Optional[str] = "mcg"
+
+    vitamin_b12: Optional[float] = None
+    vitamin_b12_unit: Optional[str] = "mcg"
+
+    # Additional nutritional information
+    glycemic_index: Optional[float] = None
+    antioxidants: Optional[str] = None
+    allergens: Optional[List[str]] = None
+
+    # Additional fields for fats breakdown with values and units separately
+    saturated_fat: Optional[float] = None
+    saturated_fat_unit: Optional[str] = "g"
+
+    monounsaturated_fat: Optional[float] = None
+    monounsaturated_fat_unit: Optional[str] = "g"
+
+    polyunsaturated_fat: Optional[float] = None
+    polyunsaturated_fat_unit: Optional[str] = "g"
+
+    trans_fat: Optional[float] = None
+    trans_fat_unit: Optional[str] = "g"
+
+    cholesterol: Optional[float] = None
+    cholesterol_unit: Optional[str] = "mg"
+
+    # Additional fields for carbs breakdown with values and units separately
+    dietary_fiber: Optional[float] = None
+    dietary_fiber_unit: Optional[str] = "g"
+
+    soluble_fiber: Optional[float] = None
+    soluble_fiber_unit: Optional[str] = "g"
+
+    insoluble_fiber: Optional[float] = None
+    insoluble_fiber_unit: Optional[str] = "g"
+
+    # Units of measurement
+    serving_size: Optional[str] = None
+    serving_unit: Optional[str] = None
+
+    # Additional information - these are strings in the JSON, not arrays
+    notes: Optional[str] = None
+    health_benefits: Optional[List[str]] = None
+    contraindications: Optional[List[str]] = None
+
+
+class ProductNutritionalDetailCreate(ProductNutritionalDetailBase):
+    product_id: int
+
+
+class ProductNutritionalDetailUpdate(ProductNutritionalDetailBase):
+    pass
+
+
+class ProductNutritionalDetailInDB(ProductNutritionalDetailBase):
+    id: int
+    product_id: int
+    created_at: str
+    updated_at: str
+
+    class Config:
+        orm_mode = True
+
+
+class ProductNutritionalDetailResponse(ProductNutritionalDetailInDB):
+    pass

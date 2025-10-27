@@ -581,3 +581,26 @@ async def delete_product(
     db.commit()
     
     return {"status": "success"}
+
+
+@router.get("/by-slug/{slug}/nutritional-details", response_model=schemas.ProductNutritionalDetailResponse)
+def get_product_nutritional_details_by_slug(slug: str, db: Session = Depends(get_db)):
+    """Get a product's nutritional details by its slug."""
+    product = db.query(models.Product).filter(models.Product.slug == slug).first()
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with slug '{slug}' not found"
+        )
+
+    nutritional_details = db.query(models.ProductNutritionalDetail).filter(
+        models.ProductNutritionalDetail.product_id == product.id
+    ).first()
+
+    if not nutritional_details:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Nutritional details for product with slug '{slug}' not found"
+        )
+
+    return nutritional_details
