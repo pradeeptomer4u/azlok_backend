@@ -183,109 +183,109 @@ class ProductNutritionalDetail(Base):
     research_papers = Column(ARRAY(Text), nullable=True)
 
     # Nutrition data with values and units separately
-    calories = Column(Float, nullable=True)
+    calories = Column(Text, nullable=True)
     calories_unit = Column(String(10), default="kcal")
 
-    protein = Column(Float, nullable=True)
+    protein = Column(Text, nullable=True)
     protein_unit = Column(String(10), default="g")
 
-    carbohydrates = Column(Float, nullable=True)
+    carbohydrates = Column(Text, nullable=True)
     carbohydrates_unit = Column(String(10), default="g")
 
-    total_fat = Column(Float, nullable=True)
+    total_fat = Column(Text, nullable=True)
     total_fat_unit = Column(String(10), default="g")
 
-    fiber = Column(Float, nullable=True)
+    fiber = Column(Text, nullable=True)
     fiber_unit = Column(String(10), default="g")
 
-    sugar = Column(Float, nullable=True)
+    sugar = Column(Text, nullable=True)
     sugar_unit = Column(String(10), default="g")
 
-    sodium = Column(Float, nullable=True)
+    sodium = Column(Text, nullable=True)
     sodium_unit = Column(String(10), default="mg")
 
     # Additional minerals with values and units separately
-    potassium = Column(Float, nullable=True)
+    potassium = Column(Text, nullable=True)
     potassium_unit = Column(String(10), default="mg")
 
-    calcium = Column(Float, nullable=True)
+    calcium = Column(Text, nullable=True)
     calcium_unit = Column(String(10), default="mg")
 
-    iron = Column(Float, nullable=True)
+    iron = Column(Text, nullable=True)
     iron_unit = Column(String(10), default="mg")
 
-    magnesium = Column(Float, nullable=True)
+    magnesium = Column(Text, nullable=True)
     magnesium_unit = Column(String(10), default="mg")
 
-    phosphorus = Column(Float, nullable=True)
+    phosphorus = Column(Text, nullable=True)
     phosphorus_unit = Column(String(10), default="mg")
 
-    zinc = Column(Float, nullable=True)
+    zinc = Column(Text, nullable=True)
     zinc_unit = Column(String(10), default="mg")
 
     # Vitamins with values and units separately
-    vitamin_a = Column(Float, nullable=True)
+    vitamin_a = Column(Text, nullable=True)
     vitamin_a_unit = Column(String(10), default="IU")
 
-    vitamin_c = Column(Float, nullable=True)
+    vitamin_c = Column(Text, nullable=True)
     vitamin_c_unit = Column(String(10), default="mg")
 
-    vitamin_d = Column(Float, nullable=True)
+    vitamin_d = Column(Text, nullable=True)
     vitamin_d_unit = Column(String(10), default="IU")
 
-    vitamin_e = Column(Float, nullable=True)
+    vitamin_e = Column(Text, nullable=True)
     vitamin_e_unit = Column(String(10), default="mg")
 
-    vitamin_k = Column(Float, nullable=True)
+    vitamin_k = Column(Text, nullable=True)
     vitamin_k_unit = Column(String(10), default="mcg")
 
-    thiamin = Column(Float, nullable=True)
+    thiamin = Column(Text, nullable=True)
     thiamin_unit = Column(String(10), default="mg")
 
-    riboflavin = Column(Float, nullable=True)
+    riboflavin = Column(Text, nullable=True)
     riboflavin_unit = Column(String(10), default="mg")
 
-    niacin = Column(Float, nullable=True)
+    niacin = Column(Text, nullable=True)
     niacin_unit = Column(String(10), default="mg")
 
-    vitamin_b6 = Column(Float, nullable=True)
+    vitamin_b6 = Column(Text, nullable=True)
     vitamin_b6_unit = Column(String(10), default="mg")
 
-    folate = Column(Float, nullable=True)
+    folate = Column(Text, nullable=True)
     folate_unit = Column(String(10), default="mcg")
 
-    vitamin_b12 = Column(Float, nullable=True)
+    vitamin_b12 = Column(Text, nullable=True)
     vitamin_b12_unit = Column(String(10), default="mcg")
 
     # Additional nutritional information
-    glycemic_index = Column(Float, nullable=True)
+    glycemic_index = Column(Text, nullable=True)
     antioxidants = Column(Text, nullable=True)  # Changed from JSON to Text
     allergens = Column(ARRAY(String), nullable=True)
 
     # Additional fields for fats breakdown with values and units separately
-    saturated_fat = Column(Float, nullable=True)
+    saturated_fat = Column(Text, nullable=True)
     saturated_fat_unit = Column(String(10), default="g")
 
-    monounsaturated_fat = Column(Float, nullable=True)
+    monounsaturated_fat = Column(Text, nullable=True)
     monounsaturated_fat_unit = Column(String(10), default="g")
 
-    polyunsaturated_fat = Column(Float, nullable=True)
+    polyunsaturated_fat = Column(Text, nullable=True)
     polyunsaturated_fat_unit = Column(String(10), default="g")
 
-    trans_fat = Column(Float, nullable=True)
+    trans_fat = Column(Text, nullable=True)
     trans_fat_unit = Column(String(10), default="g")
 
-    cholesterol = Column(Float, nullable=True)
+    cholesterol = Column(Text, nullable=True)
     cholesterol_unit = Column(String(10), default="mg")
 
     # Additional fields for carbs breakdown with values and units separately
-    dietary_fiber = Column(Float, nullable=True)
+    dietary_fiber = Column(Text, nullable=True)
     dietary_fiber_unit = Column(String(10), default="g")
 
-    soluble_fiber = Column(Float, nullable=True)
+    soluble_fiber = Column(Text, nullable=True)
     soluble_fiber_unit = Column(String(10), default="g")
 
-    insoluble_fiber = Column(Float, nullable=True)
+    insoluble_fiber = Column(Text, nullable=True)
     insoluble_fiber_unit = Column(String(10), default="g")
 
     # Units of measurement

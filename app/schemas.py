@@ -1187,109 +1187,109 @@ class ProductNutritionalDetailBase(BaseModel):
     research_papers: Optional[List[str]] = None
 
     # Nutrition data with values and units separately
-    calories: Optional[float] = None
+    calories: Optional[str] = None
     calories_unit: Optional[str] = "kcal"
 
-    protein: Optional[float] = None
+    protein: Optional[str] = None
     protein_unit: Optional[str] = "g"
 
-    carbohydrates: Optional[float] = None
+    carbohydrates: Optional[str] = None
     carbohydrates_unit: Optional[str] = "g"
 
-    total_fat: Optional[float] = None
+    total_fat: Optional[str] = None
     total_fat_unit: Optional[str] = "g"
 
-    fiber: Optional[float] = None
+    fiber: Optional[str] = None
     fiber_unit: Optional[str] = "g"
 
-    sugar: Optional[float] = None
+    sugar: Optional[str] = None
     sugar_unit: Optional[str] = "g"
 
-    sodium: Optional[float] = None
+    sodium: Optional[str] = None
     sodium_unit: Optional[str] = "mg"
 
     # Additional minerals with values and units separately
-    potassium: Optional[float] = None
+    potassium: Optional[str] = None
     potassium_unit: Optional[str] = "mg"
 
-    calcium: Optional[float] = None
+    calcium: Optional[str] = None
     calcium_unit: Optional[str] = "mg"
 
-    iron: Optional[float] = None
+    iron: Optional[str] = None
     iron_unit: Optional[str] = "mg"
 
-    magnesium: Optional[float] = None
+    magnesium: Optional[str] = None
     magnesium_unit: Optional[str] = "mg"
 
-    phosphorus: Optional[float] = None
+    phosphorus: Optional[str] = None
     phosphorus_unit: Optional[str] = "mg"
 
-    zinc: Optional[float] = None
+    zinc: Optional[str] = None
     zinc_unit: Optional[str] = "mg"
 
     # Vitamins with values and units separately
-    vitamin_a: Optional[float] = None
+    vitamin_a: Optional[str] = None
     vitamin_a_unit: Optional[str] = "IU"
 
-    vitamin_c: Optional[float] = None
+    vitamin_c: Optional[str] = None
     vitamin_c_unit: Optional[str] = "mg"
 
-    vitamin_d: Optional[float] = None
+    vitamin_d: Optional[str] = None
     vitamin_d_unit: Optional[str] = "IU"
 
-    vitamin_e: Optional[float] = None
+    vitamin_e: Optional[str] = None
     vitamin_e_unit: Optional[str] = "mg"
 
-    vitamin_k: Optional[float] = None
+    vitamin_k: Optional[str] = None
     vitamin_k_unit: Optional[str] = "mcg"
 
-    thiamin: Optional[float] = None
+    thiamin: Optional[str] = None
     thiamin_unit: Optional[str] = "mg"
 
-    riboflavin: Optional[float] = None
+    riboflavin: Optional[str] = None
     riboflavin_unit: Optional[str] = "mg"
 
-    niacin: Optional[float] = None
+    niacin: Optional[str] = None
     niacin_unit: Optional[str] = "mg"
 
-    vitamin_b6: Optional[float] = None
+    vitamin_b6: Optional[str] = None
     vitamin_b6_unit: Optional[str] = "mg"
 
-    folate: Optional[float] = None
+    folate: Optional[str] = None
     folate_unit: Optional[str] = "mcg"
 
-    vitamin_b12: Optional[float] = None
+    vitamin_b12: Optional[str] = None
     vitamin_b12_unit: Optional[str] = "mcg"
 
     # Additional nutritional information
-    glycemic_index: Optional[float] = None
+    glycemic_index: Optional[str] = None
     antioxidants: Optional[str] = None
     allergens: Optional[List[str]] = None
 
     # Additional fields for fats breakdown with values and units separately
-    saturated_fat: Optional[float] = None
+    saturated_fat: Optional[str] = None
     saturated_fat_unit: Optional[str] = "g"
 
-    monounsaturated_fat: Optional[float] = None
+    monounsaturated_fat: Optional[str] = None
     monounsaturated_fat_unit: Optional[str] = "g"
 
-    polyunsaturated_fat: Optional[float] = None
+    polyunsaturated_fat: Optional[str] = None
     polyunsaturated_fat_unit: Optional[str] = "g"
 
-    trans_fat: Optional[float] = None
+    trans_fat: Optional[str] = None
     trans_fat_unit: Optional[str] = "g"
 
-    cholesterol: Optional[float] = None
+    cholesterol: Optional[str] = None
     cholesterol_unit: Optional[str] = "mg"
 
     # Additional fields for carbs breakdown with values and units separately
-    dietary_fiber: Optional[float] = None
+    dietary_fiber: Optional[str] = None
     dietary_fiber_unit: Optional[str] = "g"
 
-    soluble_fiber: Optional[float] = None
+    soluble_fiber: Optional[str] = None
     soluble_fiber_unit: Optional[str] = "g"
 
-    insoluble_fiber: Optional[float] = None
+    insoluble_fiber: Optional[str] = None
     insoluble_fiber_unit: Optional[str] = "g"
 
     # Units of measurement
