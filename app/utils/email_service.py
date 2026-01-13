@@ -8,14 +8,17 @@ from email.mime.multipart import MIMEMultipart
 from fastapi import BackgroundTasks
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Email configuration
-SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USERNAME = os.getenv("SMTP_USERNAME", "your-email@gmail.com")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "your-app-password")
-SENDER_EMAIL = os.getenv("SENDER_EMAIL", "noreply@azlok.com")
-SENDER_NAME = os.getenv("SENDER_NAME", "Azlok Enterprises")
+SMTP_SERVER = "smtp.titan.email"
+SMTP_PORT = "465"
+SMTP_USERNAME = "hello@azlok.com"
+SMTP_PASSWORD = "Indiaa@1424"
+SENDER_EMAIL ="hello@azlok.com"
+SENDER_NAME = "Azlok Pvt Ltd"
 
 # Setup Jinja2 template environment
 template_dir = Path(__file__).parent.parent / "templates" / "emails"
@@ -74,7 +77,8 @@ class EmailService:
 
             return True
         except Exception as e:
-            print(f"Failed to send email: {str(e)}")
+            logger.error(f"Failed to send email to {recipient_email}: {str(e)}")
+            logger.exception("Email sending error details:")
             return False
 
     @staticmethod
