@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
@@ -7,9 +7,11 @@ from passlib.context import CryptContext
 from typing import Optional
 import logging
 import traceback
-
 from .. import models, schemas
 from ..database import get_db
+import secrets
+from ..utils.email_service import EmailService
+
 
 logger = logging.getLogger(__name__)
 
@@ -215,3 +217,103 @@ async def register_user(user: schemas.UserCreate, db: Session = Depends(get_db))
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+@router.post("/forgot-password", response_model=schemas.ForgotPasswordResponse)
+async def forgot_password(
+        request: schemas.ForgotPasswordRequest,
+        background_tasks: BackgroundTasks,
+        db: Session = Depends(get_db)
+):
+    """
+    Request a password reset token. Sends an email with reset link.
+    """
+    try:
+        user = db.query(models.User).filter(models.User.email == request.email).first()
+
+        if not user:
+            return {"message": "If the email exists, a password reset link has been sent."}
+
+        token = secrets.token_urlsafe(32)
+        expires_at = datetime.utcnow() + timedelta(hours=1)
+
+        db.query(models.PasswordResetToken).filter(
+            models.PasswordResetToken.user_id == user.id,
+            models.PasswordResetToken.is_used == False
+        ).update({"is_used": True})
+
+        reset_token = models.PasswordResetToken(
+            user_id=user.id,
+            token=token,
+            expires_at=expires_at
+        )
+        db.add(reset_token)
+        db.commit()
+
+        await EmailService.send_password_reset_email(
+            background_tasks=background_tasks,
+            recipient_email=user.email,
+            reset_token=token,
+            user_name=user.full_name or user.username
+        )
+
+        return {"message": "If the email exists, a password reset link has been sent."}
+
+    except Exception as e:
+        logger.error(f"Error in forgot_password: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while processing your request."
+        )
+
+
+@router.post("/reset-password", response_model=schemas.ResetPasswordResponse)
+async def reset_password(
+        request: schemas.ResetPasswordRequest,
+        db: Session = Depends(get_db)
+):
+    """
+    Reset password using a valid reset token.
+    """
+    try:
+        reset_token = db.query(models.PasswordResetToken).filter(
+            models.PasswordResetToken.token == request.token,
+            models.PasswordResetToken.is_used == False
+        ).first()
+
+        if not reset_token:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid or expired reset token."
+            )
+
+        if reset_token.expires_at < datetime.utcnow():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Reset token has expired."
+            )
+
+        user = db.query(models.User).filter(models.User.id == reset_token.user_id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found."
+            )
+
+        user.hashed_password = get_password_hash(request.new_password)
+        reset_token.is_used = True
+
+        db.commit()
+
+        return {"message": "Password has been reset successfully."}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in reset_password: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while resetting your password."
+        )

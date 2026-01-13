@@ -1,0 +1,14 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "azlok-app"
+resolve_s3 = true
+s3_prefix = "azlok-app"
+profile = "target-account"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+disable_rollback = true
+confirm_changeset = true
+
+[default.global.parameters]
+region = "ap-south-1"

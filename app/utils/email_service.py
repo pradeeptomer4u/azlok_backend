@@ -130,6 +130,28 @@ class EmailService:
             background_tasks, seller_email, subject, template_name, template_data
         )
 
+    @staticmethod
+    async def send_password_reset_email(
+        background_tasks: BackgroundTasks,
+        recipient_email: str,
+        reset_token: str,
+        user_name: str,
+    ):
+        """
+        Send password reset email with reset token
+        """
+        subject = "Password Reset Request - Azlok"
+        template_name = "password_reset"
+        reset_url = f"https://azlok.com/reset-password?token={reset_token}"
+        template_data = {
+            "user_name": user_name,
+            "reset_url": reset_url,
+            "reset_token": reset_token,
+        }
+
+        await EmailService.send_email_async(
+            background_tasks, recipient_email, subject, template_name, template_data
+        )
 
 def get_status_description(status: str) -> str:
     """

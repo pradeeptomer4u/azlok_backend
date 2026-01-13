@@ -136,6 +136,21 @@ class User(UserInDB):
     class Config:
         from_attributes = True
 
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+class ResetPasswordResponse(BaseModel):
+    message: str
+
+
 # Category schemas
 class CategoryBase(BaseModel):
     name: str
