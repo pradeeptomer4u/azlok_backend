@@ -249,7 +249,7 @@ async def forgot_password(
         db.add(reset_token)
         db.commit()
 
-        await EmailService.send_password_reset_email_sync(
+        EmailService.send_password_reset_email_sync(
             recipient_email=user.email,
             reset_token=token,
             user_name=user.full_name or user.username
