@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
@@ -222,7 +222,6 @@ async def register_user(user: schemas.UserCreate, db: Session = Depends(get_db))
 @router.post("/forgot-password", response_model=schemas.ForgotPasswordResponse)
 async def forgot_password(
         request: schemas.ForgotPasswordRequest,
-        background_tasks: BackgroundTasks,
         db: Session = Depends(get_db)
 ):
     """
@@ -250,8 +249,7 @@ async def forgot_password(
         db.add(reset_token)
         db.commit()
 
-        await EmailService.send_password_reset_email(
-            background_tasks=background_tasks,
+        await EmailService.send_password_reset_email_sync(
             recipient_email=user.email,
             reset_token=token,
             user_name=user.full_name or user.username
