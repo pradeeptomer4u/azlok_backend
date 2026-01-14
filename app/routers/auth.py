@@ -242,7 +242,7 @@ async def forgot_password(
         ).update({"is_used": True})
 
         reset_token = models.PasswordResetToken(
-            user_id=user.id,
+            user_id=int(user.id),
             token=token,
             expires_at=expires_at
         )
@@ -250,9 +250,9 @@ async def forgot_password(
         db.commit()
 
         EmailService.send_password_reset_email_sync(
-            recipient_email=user.email,
-            reset_token=token,
-            user_name=user.full_name or user.username
+            recipient_email=str(user.email),
+            reset_token=str(token),
+            user_name=str(user.full_name or user.username)
         )
 
         return {"message": "If the email exists, a password reset link has been sent."}
