@@ -12,8 +12,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Email configuration
-SMTP_SERVER = "smtp.titan.email"
+# Email configuration - GoDaddy SMTP
+SMTP_SERVER = "smtpout.secureserver.net"
 SMTP_PORT = "465"
 SMTP_USERNAME = "hello@azlok.com"
 SMTP_PASSWORD = "Indiaa@1424"
@@ -28,6 +28,23 @@ env = Environment(loader=FileSystemLoader(str(template_dir)))
 
 class EmailService:
     """Email service for sending notifications"""
+
+    @staticmethod
+    def send_email(
+        recipient_email: str,
+        subject: str,
+        template_name: str,
+        template_data: dict,
+    ):
+        """
+        Send an email synchronously (for testing or direct sending)
+        """
+        return EmailService._send_email(
+            recipient_email,
+            subject,
+            template_name,
+            template_data,
+        )
 
     @staticmethod
     async def send_email_async(
@@ -56,6 +73,9 @@ class EmailService:
         Send an email using SMTP
         """
         try:
+            logger.info(f"Preparing to send email to {recipient_email}")
+            logger.info(f"Subject: {subject}")
+            
             # Create message
             message = MIMEMultipart("alternative")
             message["Subject"] = subject
@@ -65,16 +85,22 @@ class EmailService:
             # Render template
             template = env.get_template(f"{template_name}.html")
             html_content = template.render(**template_data)
+            logger.info(f"Template {template_name}.html rendered successfully")
 
             # Attach parts
             message.attach(MIMEText(html_content, "html"))
 
-            # Connect to SMTP server
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-                server.starttls()
+            # Connect to SMTP server (using SSL for port 465)
+            logger.info(f"Connecting to {SMTP_SERVER}:{SMTP_PORT}")
+            with smtplib.SMTP_SSL(SMTP_SERVER, int(SMTP_PORT)) as server:
+                logger.info("Connected to SMTP server")
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
-                server.send_message(message)
+                logger.info("Authentication successful")
+                
+                result = server.send_message(message)
+                logger.info(f"Email sent successfully. Server response: {result}")
 
+            logger.info(f"Email to {recipient_email} sent successfully")
             return True
         except Exception as e:
             logger.error(f"Failed to send email to {recipient_email}: {str(e)}")
@@ -135,6 +161,28 @@ class EmailService:
         )
 
     @staticmethod
+    def send_password_reset_email_sync(
+        recipient_email: str,
+        reset_token: str,
+        user_name: str,
+    ):
+        """
+        Send password reset email synchronously (without background tasks)
+        """
+        subject = "Password Reset Request - Azlok"
+        template_name = "password_reset"
+        reset_url = f"https://azlok.com/reset-password?token={reset_token}"
+        template_data = {
+            "user_name": user_name,
+            "reset_url": reset_url,
+            "reset_token": reset_token,
+        }
+
+        return EmailService.send_email(
+            recipient_email, subject, template_name, template_data
+        )
+
+    @staticmethod
     async def send_password_reset_email(
         background_tasks: BackgroundTasks,
         recipient_email: str,
@@ -142,7 +190,7 @@ class EmailService:
         user_name: str,
     ):
         """
-        Send password reset email with reset token
+        Send password reset email with reset token (async with background tasks)
         """
         subject = "Password Reset Request - Azlok"
         template_name = "password_reset"
