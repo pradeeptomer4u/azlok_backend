@@ -81,6 +81,28 @@ def health_check():
     from datetime import datetime
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
+@app.get("/debug/db-info")
+def debug_db_info():
+    """Debug endpoint to check database connection"""
+    from app.database import DATABASE_URL
+    import os
+    
+    # Mask password in URL for security
+    db_url_masked = DATABASE_URL
+    if "@" in db_url_masked:
+        parts = db_url_masked.split("@")
+        if ":" in parts[0]:
+            user_pass = parts[0].split("://")[1]
+            if ":" in user_pass:
+                user = user_pass.split(":")[0]
+                db_url_masked = db_url_masked.replace(user_pass, f"{user}:****")
+    
+    return {
+        "database_url": db_url_masked,
+        "has_env_override": "DATABASE_URL" in os.environ,
+        "env_database_url": os.getenv("DATABASE_URL", "Not set")[:50] + "..." if os.getenv("DATABASE_URL") else "Not set"
+    }
+
 # Keep-alive background task
 @app.on_event("startup")
 async def startup_event():
