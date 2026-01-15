@@ -359,3 +359,35 @@ async def debug_check_user(email: str, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Debug check user error: {str(e)}")
         return {"error": str(e)}
+
+@router.post("/debug/update-admin-password")
+async def debug_update_admin_password(db: Session = Depends(get_db)):
+    """Update admin password directly on production server"""
+    try:
+        user = db.query(models.User).filter(models.User.email == "admin@azlok.com").first()
+        if not user:
+            return {"error": "Admin user not found"}
+        
+        new_password = "0n3C0mp@ny"
+        new_hash = get_password_hash(new_password)
+        
+        old_hash_prefix = user.hashed_password[:40]
+        user.hashed_password = new_hash
+        db.commit()
+        db.refresh(user)
+        
+        # Verify immediately
+        is_valid = verify_password(new_password, user.hashed_password)
+        
+        return {
+            "success": True,
+            "user_id": user.id,
+            "email": user.email,
+            "old_hash_prefix": old_hash_prefix,
+            "new_hash_prefix": user.hashed_password[:40],
+            "password_verified": is_valid,
+            "message": "Password updated on production server"
+        }
+    except Exception as e:
+        logger.error(f"Error updating password: {str(e)}")
+        return {"error": str(e)}
