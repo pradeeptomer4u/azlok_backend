@@ -105,6 +105,13 @@ class UserCreate(UserBase):
     password: str
     business_details: Optional[BusinessDetails] = None
     
+    @validator('role', pre=True)
+    def normalize_role(cls, v):
+        """Convert role to lowercase if provided"""
+        if v and isinstance(v, str):
+            return v.lower()
+        return v
+    
     @validator('business_details')
     def validate_business_details(cls, v, values):
         role = values.get('role')
