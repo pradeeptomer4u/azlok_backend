@@ -73,7 +73,11 @@ app.include_router(user_permissions.router, prefix="/api/permissions", tags=["Us
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Azlok Enterprises API"}
+    return {
+        "message": "Welcome to Azlok Enterprises API",
+        "version": "1.0.1",
+        "updated": "2026-01-15"
+    }
 
 @app.get("/health")
 def health_check():
