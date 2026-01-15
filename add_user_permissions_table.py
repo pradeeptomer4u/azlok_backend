@@ -9,7 +9,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from sqlalchemy import create_engine, text
-from app.database import SQLALCHEMY_DATABASE_URL, Base
+from app.database import DATABASE_URL, Base
 from app.models import UserPermission, Permission
 import logging
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def add_user_permissions_table():
     """Add user_permissions table to the database"""
     try:
-        engine = create_engine(SQLALCHEMY_DATABASE_URL)
+        engine = create_engine(DATABASE_URL)
         
         # Create the user_permissions table
         logger.info("Creating user_permissions table...")
