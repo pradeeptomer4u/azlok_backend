@@ -8,10 +8,11 @@ from .. import models, schemas
 from ..database import get_db
 from .auth import get_current_active_user
 from ..utils.email_service import EmailService
+from .user_permissions import has_permission
 
 router = APIRouter()
 
-# Helper function to check admin permissions
+# Helper function to check admin permissions or specific permission
 async def get_admin_user(current_user: schemas.User = Depends(get_current_active_user)):
     if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
         raise HTTPException(
@@ -19,6 +20,13 @@ async def get_admin_user(current_user: schemas.User = Depends(get_current_active
             detail="Only admin and company personnel can access this endpoint"
         )
     return current_user
+
+# Helper to check product permissions
+def check_product_permission(user: models.User, permission: schemas.Permission, db: Session):
+    """Check if user has product permission or is admin/company"""
+    if user.role in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+        return True
+    return has_permission(user, permission, db)
 
 @router.get("/dashboard", response_model=dict)
 async def admin_dashboard(

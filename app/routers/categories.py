@@ -9,6 +9,7 @@ from .. import models, schemas
 from ..database import get_db
 from .auth import get_current_active_user
 from ..cache import cached, invalidate_categories_cache, redis_client
+from .user_permissions import has_permission
 
 router = APIRouter()
 
@@ -16,14 +17,20 @@ def generate_slug(name: str) -> str:
     """Generate a URL-friendly slug from a category name"""
     return name.lower().replace(" ", "-")
 
+def check_category_permission(user: models.User, permission: schemas.Permission, db: Session):
+    """Check if user has category permission or is admin/company"""
+    if user.role in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+        return True
+    return has_permission(user, permission, db)
+
 @router.post("/", response_model=schemas.Category)
 async def create_category(
     category: schemas.CategoryCreate,
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    # Only admins and company personnel can create categories
-    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Check if user has manage_categories permission or is admin/company
+    if not check_category_permission(current_user, schemas.Permission.MANAGE_CATEGORIES, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Generate slug if not provided
@@ -121,8 +128,8 @@ async def update_category(
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    # Only admins and company personnel can update categories
-    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Check if user has manage_categories permission or is admin/company
+    if not check_category_permission(current_user, schemas.Permission.MANAGE_CATEGORIES, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
@@ -180,8 +187,8 @@ async def delete_category(
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    # Only admins and company personnel can delete categories
-    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Check if user has manage_categories permission or is admin/company
+    if not check_category_permission(current_user, schemas.Permission.MANAGE_CATEGORIES, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Check if category exists

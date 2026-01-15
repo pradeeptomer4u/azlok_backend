@@ -12,8 +12,16 @@ from .. import models, schemas
 from ..database import get_db
 from .auth import get_current_active_user
 from ..cache import cached, invalidate_blog_cache, redis_client
+from .user_permissions import has_permission
 
 router = APIRouter()
+
+# Helper function to check blog permissions
+def check_blog_permission(user: models.User, permission: schemas.Permission, db: Session):
+    """Check if user has blog permission or is admin/company"""
+    if user.role in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+        return True
+    return has_permission(user, permission, db)
 
 # Helper function to generate slug from title
 def generate_slug(title: str, db: Session) -> str:
@@ -37,8 +45,8 @@ async def create_blog(
     db: Session = Depends(get_db)
 ):
     """Create a new blog post"""
-    # Only admins and company personnel can create blogs
-    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Check if user has manage_blogs permission or is admin/company
+    if not check_blog_permission(current_user, schemas.Permission.MANAGE_BLOGS, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Generate slug if not provided
@@ -166,8 +174,8 @@ async def read_admin_blogs(
     db: Session = Depends(get_db)
 ):
     """Get all blogs for admin dashboard"""
-    # Only admins and company personnel can access all blogs
-    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Check if user has view_blogs permission or is admin/company
+    if not check_blog_permission(current_user, schemas.Permission.VIEW_BLOGS, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     query = db.query(models.Blog)
@@ -265,8 +273,8 @@ async def read_blog_admin(
     db: Session = Depends(get_db)
 ):
     """Get a blog by ID for admin dashboard"""
-    # Only admins and company personnel can access all blogs
-    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Check if user has view_blogs permission or is admin/company
+    if not check_blog_permission(current_user, schemas.Permission.VIEW_BLOGS, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
@@ -290,8 +298,8 @@ async def update_blog(
     db: Session = Depends(get_db)
 ):
     """Update a blog"""
-    # Only admins and company personnel can update blogs
-    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Check if user has manage_blogs permission or is admin/company
+    if not check_blog_permission(current_user, schemas.Permission.MANAGE_BLOGS, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     db_blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
@@ -376,8 +384,8 @@ async def delete_blog(
     db: Session = Depends(get_db)
 ):
     """Delete a blog"""
-    # Only admins and company personnel can delete blogs
-    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Check if user has manage_blogs permission or is admin/company
+    if not check_blog_permission(current_user, schemas.Permission.MANAGE_BLOGS, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     db_blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()

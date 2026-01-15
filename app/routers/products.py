@@ -11,12 +11,19 @@ from ..database import get_db
 from .auth import get_current_active_user
 from ..cache import cached, invalidate_products_cache, invalidate_product_cache, redis_client
 from fastapi.encoders import jsonable_encoder
+from .user_permissions import has_permission
 
 router = APIRouter()
 
 def generate_slug(name: str) -> str:
     """Generate a URL-friendly slug from a product name"""
     return name.lower().replace(" ", "-")
+
+def check_product_permission(user: models.User, permission: schemas.Permission, db: Session):
+    """Check if user has product permission or is admin/company"""
+    if user.role in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+        return True
+    return has_permission(user, permission, db)
 
 def generate_sku(db: Session, name: str) -> str:
     """Generate a unique SKU for a product"""
@@ -37,8 +44,8 @@ async def create_product(
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    # Only sellers, admins, and company personnel can create products
-    if current_user.role not in [models.UserRole.SELLER, models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Only sellers, admins, company personnel, or users with manage_products permission can create products
+    if current_user.role not in [models.UserRole.SELLER, models.UserRole.ADMIN, models.UserRole.COMPANY] and not check_product_permission(current_user, schemas.Permission.MANAGE_PRODUCTS, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Generate slug if not provided
@@ -348,7 +355,7 @@ async def read_product(product_id: int, db: Session = Depends(get_db)):
     # If product is not approved, only seller, admins, and company personnel can view it
     if product.approval_status != models.ApprovalStatus.APPROVED:
         current_user = await get_current_active_user()
-        if current_user.id != product.seller_id and current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+        if current_user.id != product.seller_id and not check_product_permission(current_user, schemas.Permission.VIEW_PRODUCTS, db):
             raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Parse image_urls from JSON string to list
@@ -431,8 +438,8 @@ async def update_product(
     if db_product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    # Only the seller, admins, and company personnel can update the product
-    if db_product.seller_id != current_user.id and current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Only the seller, admins, company personnel, or users with manage_products permission can update the product
+    if db_product.seller_id != current_user.id and not check_product_permission(current_user, schemas.Permission.MANAGE_PRODUCTS, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Update product fields if provided
@@ -499,8 +506,8 @@ async def update_product(
     if isinstance(db_product.gst_details, dict):
         db_product.gst_details = json.dumps(db_product.gst_details)
     
-    # Only admins and company personnel can update approval status
-    if product_update.approval_status is not None and current_user.role in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Only admins, company personnel, or users with manage_products permission can update approval status
+    if product_update.approval_status is not None and check_product_permission(current_user, schemas.Permission.MANAGE_PRODUCTS, db):
         db_product.approval_status = product_update.approval_status
         if product_update.approval_status != models.ApprovalStatus.PENDING:
             db_product.approved_by = current_user.id
@@ -555,8 +562,8 @@ async def delete_product(
     if db_product is None:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    # Only the seller, admins, and company personnel can delete the product
-    if db_product.seller_id != current_user.id and current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+    # Only the seller, admins, company personnel, or users with manage_products permission can delete the product
+    if db_product.seller_id != current_user.id and not check_product_permission(current_user, schemas.Permission.MANAGE_PRODUCTS, db):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     # Delete product from Redis
