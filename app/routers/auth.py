@@ -329,3 +329,33 @@ async def reset_password(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while resetting your password."
         )
+
+@router.get("/debug/check-user/{email}")
+async def debug_check_user(email: str, db: Session = Depends(get_db)):
+    """Debug endpoint to check user authentication"""
+    try:
+        user = db.query(models.User).filter(models.User.email == email).first()
+        if not user:
+            return {"error": "User not found", "email": email}
+        
+        # Test with known password
+        test_password = "0n3C0mp@ny"
+        is_valid = verify_password(test_password, user.hashed_password)
+        
+        # Also test simple password
+        simple_password = "admin123"
+        is_valid_simple = verify_password(simple_password, user.hashed_password)
+        
+        return {
+            "user_id": user.id,
+            "email": user.email,
+            "username": user.username,
+            "is_active": user.is_active,
+            "role": str(user.role),
+            "hash_prefix": user.hashed_password[:40],
+            "password_0n3C0mp@ny": "valid" if is_valid else "invalid",
+            "password_admin123": "valid" if is_valid_simple else "invalid"
+        }
+    except Exception as e:
+        logger.error(f"Debug check user error: {str(e)}")
+        return {"error": str(e)}
