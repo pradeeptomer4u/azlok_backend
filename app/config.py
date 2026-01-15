@@ -4,7 +4,8 @@ import os
 
 class Settings(BaseSettings):
     # Database settings
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/azlok")
+    DATABASE_URL: str = "postgresql://postgres:npg_Y0WE8ibnFjge@azlok-shopping.cnack2uoelgc.ap-south-1.rds.amazonaws.com/azlok_shopping?sslmode=require&channel_binding=require"
+
 
     # JWT settings
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key")
@@ -21,9 +22,9 @@ class Settings(BaseSettings):
     REDIS_URL: Optional[str] = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
     # Razorpay settings
-    RAZORPAY_KEY_ID: str = os.getenv("RAZORPAY_KEY_ID", "rzp_live_RUNzD6LppR2Rbc")
-    RAZORPAY_KEY_SECRET: str = os.getenv("RAZORPAY_KEY_SECRET", "QHjL1yzacXE1r8QOp7GNvHZr")
-    RAZORPAY_WEBHOOK_SECRET: str = os.getenv("RAZORPAY_WEBHOOK_SECRET", "dwGY4yAJufR6u6SK8lc")
+    RAZORPAY_KEY_ID: str = "rzp_live_RUNzD6LppR2Rbc"
+    RAZORPAY_KEY_SECRET: str = "QHjL1yzacXE1r8QOp7GNvHZr"
+    RAZORPAY_WEBHOOK_SECRET: str = "dwGY4yAJufR6u6SK8lc"
 
     class Config:
         env_file = ".env"
