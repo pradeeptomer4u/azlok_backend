@@ -17,6 +17,44 @@ class UserRole(str, enum.Enum):
     ADMIN = "admin"
     COMPANY = "company"
 
+# Permission enum for granular access control
+class Permission(str, enum.Enum):
+    # Blog permissions
+    MANAGE_BLOGS = "manage_blogs"
+    VIEW_BLOGS = "view_blogs"
+    
+    # Order permissions
+    MANAGE_ORDERS = "manage_orders"
+    VIEW_ORDERS = "view_orders"
+    
+    # Inventory permissions
+    MANAGE_INVENTORY = "manage_inventory"
+    VIEW_INVENTORY = "view_inventory"
+    
+    # Tax permissions
+    MANAGE_TAX_RATES = "manage_tax_rates"
+    VIEW_TAX_RATES = "view_tax_rates"
+    
+    # Product permissions
+    MANAGE_PRODUCTS = "manage_products"
+    VIEW_PRODUCTS = "view_products"
+    
+    # User permissions
+    MANAGE_USERS = "manage_users"
+    VIEW_USERS = "view_users"
+    
+    # Category permissions
+    MANAGE_CATEGORIES = "manage_categories"
+    VIEW_CATEGORIES = "view_categories"
+    
+    # Company permissions
+    MANAGE_COMPANIES = "manage_companies"
+    VIEW_COMPANIES = "view_companies"
+    
+    # Seller permissions
+    MANAGE_SELLERS = "manage_sellers"
+    VIEW_SELLERS = "view_sellers"
+
 # Product approval status enum
 class ApprovalStatus(str, enum.Enum):
     PENDING = "pending"
@@ -864,3 +902,18 @@ class PasswordResetToken(Base):
 
     # Relationship
     user = relationship("User", backref="password_reset_tokens")
+
+class UserPermission(Base):
+    __tablename__ = "user_permissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    permission = Column(Enum(Permission), nullable=False)
+    granted_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    granted_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=True)
+    is_active = Column(Boolean, default=True)
+
+    # Relationships
+    user = relationship("User", foreign_keys=[user_id], backref="permissions")
+    granted_by_user = relationship("User", foreign_keys=[granted_by])

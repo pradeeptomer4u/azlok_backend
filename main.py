@@ -19,7 +19,7 @@ logging.basicConfig(
 from app.database import get_db
 # Import models to ensure they're registered with SQLAlchemy
 from app.models import *
-from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials, blogs, shipping_methods, payment_methods, addresses, checkout, orders, inventory, packaged_products, purchase, production, gate_pass, razorpay_webhook, razorpay_orders
+from app.routers import auth, users, products, categories, cart, admin, seller, seller_api, seo, tax, logistics, payments, invoices, testimonials, blogs, shipping_methods, payment_methods, addresses, checkout, orders, inventory, packaged_products, purchase, production, gate_pass, razorpay_webhook, razorpay_orders, user_permissions
 from app.utils.keep_alive import start_keep_alive
 
 app = FastAPI(
@@ -69,6 +69,7 @@ app.include_router(gate_pass.router, prefix="/gate-pass", tags=["gate-pass"])
 # SEO router - no prefix as these are root-level endpoints
 app.include_router(seo.router, tags=["SEO"])
 app.include_router(razorpay_orders.router, prefix="/api/payments", tags=["Razorpay Orders"])
+app.include_router(user_permissions.router, prefix="/api/permissions", tags=["User Permissions"])
 
 @app.get("/")
 def read_root():
