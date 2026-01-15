@@ -248,12 +248,19 @@ async def forgot_password(
         )
         db.add(reset_token)
         db.commit()
+        
+        logger.info(f"Password reset token created for user {user.email}: {token[:20]}...")
 
-        EmailService.send_password_reset_email_sync(
-            recipient_email=str(user.email),
-            reset_token=str(token),
-            user_name=str(user.full_name or user.username)
-        )
+        try:
+            EmailService.send_password_reset_email_sync(
+                recipient_email=str(user.email),
+                reset_token=str(token),
+                user_name=str(user.full_name or user.username)
+            )
+            logger.info(f"Password reset email sent successfully to {user.email}")
+        except Exception as email_error:
+            logger.error(f"Failed to send password reset email to {user.email}: {str(email_error)}")
+            # Continue anyway - token is saved in DB
 
         return {"message": "If the email exists, a password reset link has been sent."}
 
@@ -275,18 +282,24 @@ async def reset_password(
     Reset password using a valid reset token.
     """
     try:
+        logger.info(f"Password reset attempt with token: {request.token[:20]}...")
+        
         reset_token = db.query(models.PasswordResetToken).filter(
             models.PasswordResetToken.token == request.token,
             models.PasswordResetToken.is_used == False
         ).first()
 
         if not reset_token:
+            logger.warning(f"Reset token not found or already used: {request.token[:20]}...")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid or expired reset token."
             )
 
+        logger.info(f"Token found. Expires at: {reset_token.expires_at}, Current time: {datetime.utcnow()}")
+        
         if reset_token.expires_at < datetime.utcnow():
+            logger.warning(f"Reset token has expired: {request.token[:20]}...")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Reset token has expired."
