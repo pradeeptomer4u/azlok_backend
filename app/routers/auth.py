@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from typing import Optional
@@ -234,7 +234,7 @@ async def forgot_password(
             return {"message": "If the email exists, a password reset link has been sent."}
 
         token = secrets.token_urlsafe(32)
-        expires_at = datetime.utcnow() + timedelta(hours=1)
+        expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
 
         db.query(models.PasswordResetToken).filter(
             models.PasswordResetToken.user_id == user.id,
@@ -296,9 +296,10 @@ async def reset_password(
                 detail="Invalid or expired reset token."
             )
 
-        logger.info(f"Token found. Expires at: {reset_token.expires_at}, Current time: {datetime.utcnow()}")
+        current_time = datetime.now(reset_token.expires_at.tzinfo) if reset_token.expires_at.tzinfo else datetime.utcnow()
+        logger.info(f"Token found. Expires at: {reset_token.expires_at}, Current time: {current_time}")
         
-        if reset_token.expires_at < datetime.utcnow():
+        if reset_token.expires_at < current_time:
             logger.warning(f"Reset token has expired: {request.token[:20]}...")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
