@@ -205,13 +205,17 @@ async def register_user(user: schemas.UserCreate, db: Session = Depends(get_db))
         raise HTTPException(status_code=400, detail="Username already taken")
 
     hashed_password = get_password_hash(user.password)
+    
+    # Default role to BUYER if not provided
+    user_role = getattr(user, 'role', None) or models.UserRole.BUYER
+    
     db_user = models.User(
         email=user.email,
         username=user.username,
         hashed_password=hashed_password,
         full_name=user.full_name,
         phone=user.phone,
-        role=user.role
+        role=user_role
     )
     db.add(db_user)
     db.commit()

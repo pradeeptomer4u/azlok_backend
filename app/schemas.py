@@ -88,9 +88,9 @@ class InvoiceStatus(str, Enum):
 class UserBase(BaseModel):
     email: EmailStr
     username: str
-    full_name: str
+    full_name: Optional[str] = None
     phone: Optional[str] = None
-    role: UserRole = UserRole.BUYER
+    role: Optional[UserRole] = None
 
 class BusinessDetails(BaseModel):
     business_name: str
@@ -107,7 +107,8 @@ class UserCreate(UserBase):
     
     @validator('business_details')
     def validate_business_details(cls, v, values):
-        if values.get('role') in [UserRole.SELLER, UserRole.COMPANY] and not v:
+        role = values.get('role')
+        if role and role in [UserRole.SELLER, UserRole.COMPANY] and not v:
             raise ValueError('Business details are required for sellers and companies')
         return v
 
