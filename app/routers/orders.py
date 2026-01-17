@@ -1,18 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
 import uuid
+import json
 
 from .. import models, schemas
 from ..database import get_db
 from .auth import get_current_active_user
+from ..utils.email_service import EmailService
+from ..utils.whatsapp_service import WhatsAppService
 
 router = APIRouter()
 
 @router.post("/", response_model=schemas.OrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
     order_request: schemas.OrderBase,
+    background_tasks: BackgroundTasks,
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -135,6 +139,73 @@ async def create_order(
     
     # Query the order again to get all relationships loaded
     order_with_details = db.query(models.Order).filter(models.Order.id == order.id).first()
+    
+    # Send email notification in background
+    try:
+        # Parse shipping address from JSON string
+        shipping_addr = json.loads(order.shipping_address) if isinstance(order.shipping_address, str) else shipping_address_json
+        
+        # Prepare order items for email
+        email_items = []
+        for item in order_with_details.items:
+            email_items.append({
+                "product_name": item.product.name if item.product else "Unknown Product",
+                "quantity": item.quantity,
+                "price": float(item.price),
+                "total": float(item.total)
+            })
+        
+        # Send email to admin
+        await EmailService.send_email_async(
+            background_tasks=background_tasks,
+            recipient_email="pradeeptomer4u@gmail.com",
+            subject=f"New Order Created - #{order.order_number}",
+            template_name="order_created",
+            template_data={
+                "order_id": order.id,
+                "order_number": order.order_number,
+                "customer_name": current_user.full_name or current_user.username,
+                "customer_email": current_user.email,
+                "order_date": order.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "payment_method": order.payment_method,
+                "shipping_method": order.shipping_method,
+                "items": email_items,
+                "subtotal": float(order.subtotal_amount),
+                "tax_amount": float(order.tax_amount),
+                "shipping_amount": float(order.shipping_amount),
+                "total_amount": float(order.total_amount),
+                "shipping_address": shipping_addr
+            }
+        )
+    except Exception as e:
+        # Log error but don't fail the order creation
+        print(f"Failed to send order notification email: {str(e)}")
+    
+    # Send WhatsApp notification
+    try:
+        # Send to a single WhatsApp number (you can configure this)
+        whatsapp_number = "+917300551699"
+        
+        # Extract product names from email_items
+        product_names = [item["product_name"] for item in email_items]
+        
+        # Get customer phone number
+        customer_phone = current_user.phone or shipping_addr.get("phone_number", "N/A")
+        
+        WhatsAppService.send_order_notification(
+            phone_number=whatsapp_number,
+            order_number=order.order_number,
+            customer_name=current_user.full_name or current_user.username,
+            customer_phone=customer_phone,
+            total_amount=float(order.total_amount),
+            items_count=len(email_items),
+            shipping_address=shipping_addr,
+            product_names=product_names
+        )
+    except Exception as e:
+        # Log error but don't fail the order creation
+        print(f"Failed to send WhatsApp notification: {str(e)}")
+    
     return order_with_details
 
 # Public endpoint to track an order by order number
