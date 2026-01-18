@@ -204,7 +204,7 @@ async def create_order(
         product_names = [item["product_name"] for item in email_items]
         
         # Get customer phone number
-        customer_phone = current_user.phone or shipping_addr.get("phone_number", "N/A")
+        customer_phone = shipping_addr.get("phone_number", "N/A")
         
         result = WhatsAppService.send_order_notification(
             phone_number=whatsapp_number,
