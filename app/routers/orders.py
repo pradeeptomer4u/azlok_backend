@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from datetime import datetime
@@ -16,7 +16,6 @@ router = APIRouter()
 @router.post("/", response_model=schemas.OrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_order(
     order_request: schemas.OrderBase,
-    background_tasks: BackgroundTasks,
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -155,9 +154,10 @@ async def create_order(
                 "total": float(item.total)
             })
         
-        # Send email to admin
-        await EmailService.send_email_async(
-            background_tasks=background_tasks,
+        print(f"[ORDER EMAIL] Attempting to send email for order #{order.order_number}")
+        
+        # Send email synchronously (required for Lambda - background tasks don't work)
+        EmailService.send_email(
             recipient_email="pradeeptomer4u@gmail.com",
             subject=f"New Order Created - #{order.order_number}",
             template_name="order_created",
@@ -177,12 +177,17 @@ async def create_order(
                 "shipping_address": shipping_addr
             }
         )
+        print(f"[ORDER EMAIL] Email sent successfully for order #{order.order_number}")
     except Exception as e:
         # Log error but don't fail the order creation
-        print(f"Failed to send order notification email: {str(e)}")
+        print(f"[ORDER EMAIL ERROR] Failed to send order notification email: {str(e)}")
+        import traceback
+        print(f"[ORDER EMAIL ERROR] Traceback: {traceback.format_exc()}")
     
-    # Send WhatsApp notification
+    # Send WhatsApp notification (synchronous for Lambda)
     try:
+        print(f"[ORDER WHATSAPP] Attempting to send WhatsApp for order #{order.order_number}")
+        
         # Send to a single WhatsApp number (you can configure this)
         whatsapp_number = "+917300551699"
         
@@ -192,7 +197,7 @@ async def create_order(
         # Get customer phone number
         customer_phone = current_user.phone or shipping_addr.get("phone_number", "N/A")
         
-        WhatsAppService.send_order_notification(
+        result = WhatsAppService.send_order_notification(
             phone_number=whatsapp_number,
             order_number=order.order_number,
             customer_name=current_user.full_name or current_user.username,
@@ -202,9 +207,17 @@ async def create_order(
             shipping_address=shipping_addr,
             product_names=product_names
         )
+        
+        if result:
+            print(f"[ORDER WHATSAPP] WhatsApp sent successfully for order #{order.order_number}")
+        else:
+            print(f"[ORDER WHATSAPP] WhatsApp sending failed for order #{order.order_number}")
+            
     except Exception as e:
         # Log error but don't fail the order creation
-        print(f"Failed to send WhatsApp notification: {str(e)}")
+        print(f"[ORDER WHATSAPP ERROR] Failed to send WhatsApp notification: {str(e)}")
+        import traceback
+        print(f"[ORDER WHATSAPP ERROR] Traceback: {traceback.format_exc()}")
     
     return order_with_details
 

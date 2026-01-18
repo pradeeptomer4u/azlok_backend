@@ -73,6 +73,7 @@ class EmailService:
         Send an email using SMTP
         """
         try:
+            print(f"[EMAIL SERVICE] Starting email send to {recipient_email}")
             logger.info(f"Preparing to send email to {recipient_email}")
             logger.info(f"Subject: {subject}")
             
@@ -81,30 +82,47 @@ class EmailService:
             message["Subject"] = subject
             message["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
             message["To"] = recipient_email
+            print(f"[EMAIL SERVICE] Message created - From: {SENDER_EMAIL}, To: {recipient_email}")
 
             # Render template
-            template = env.get_template(f"{template_name}.html")
-            html_content = template.render(**template_data)
-            logger.info(f"Template {template_name}.html rendered successfully")
+            try:
+                template = env.get_template(f"{template_name}.html")
+                html_content = template.render(**template_data)
+                logger.info(f"Template {template_name}.html rendered successfully")
+                print(f"[EMAIL SERVICE] Template {template_name}.html rendered successfully")
+            except Exception as template_error:
+                print(f"[EMAIL SERVICE ERROR] Template rendering failed: {str(template_error)}")
+                raise
 
             # Attach parts
             message.attach(MIMEText(html_content, "html"))
 
             # Connect to SMTP server (using SSL for port 465)
+            print(f"[EMAIL SERVICE] Connecting to {SMTP_SERVER}:{SMTP_PORT}")
             logger.info(f"Connecting to {SMTP_SERVER}:{SMTP_PORT}")
+            
             with smtplib.SMTP_SSL(SMTP_SERVER, int(SMTP_PORT)) as server:
                 logger.info("Connected to SMTP server")
+                print(f"[EMAIL SERVICE] Connected to SMTP server")
+                
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
                 logger.info("Authentication successful")
+                print(f"[EMAIL SERVICE] Authentication successful")
                 
                 result = server.send_message(message)
                 logger.info(f"Email sent successfully. Server response: {result}")
+                print(f"[EMAIL SERVICE] Email sent successfully. Server response: {result}")
 
             logger.info(f"Email to {recipient_email} sent successfully")
+            print(f"[EMAIL SERVICE] ✅ Email to {recipient_email} sent successfully")
             return True
         except Exception as e:
-            logger.error(f"Failed to send email to {recipient_email}: {str(e)}")
+            error_msg = f"Failed to send email to {recipient_email}: {str(e)}"
+            logger.error(error_msg)
             logger.exception("Email sending error details:")
+            print(f"[EMAIL SERVICE ERROR] {error_msg}")
+            import traceback
+            print(f"[EMAIL SERVICE ERROR] Full traceback: {traceback.format_exc()}")
             return False
 
     @staticmethod

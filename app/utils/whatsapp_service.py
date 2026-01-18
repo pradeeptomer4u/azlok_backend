@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 # WhatsApp API Configuration - Green API
 # Green API credentials
-GREEN_API_URL = os.getenv("GREEN_API_URL", "https://7105.api.greenapi.com")
-GREEN_API_INSTANCE_ID = os.getenv("GREEN_API_INSTANCE_ID", "7105476617")
-GREEN_API_TOKEN = os.getenv("GREEN_API_TOKEN", "8fab8360a9e64b1f8dcd6963ccedbfc997551c96bc0a43f2af")
-WHATSAPP_ENABLED = os.getenv("WHATSAPP_ENABLED", "true").lower() == "true"
+GREEN_API_URL = "https://7105.api.greenapi.com"
+GREEN_API_INSTANCE_ID = "7105476617"
+GREEN_API_TOKEN = "8fab8360a9e64b1f8dcd6963ccedbfc997551c96bc0a43f2af"
+WHATSAPP_ENABLED = True
 
 # Construct the full API endpoint for sending messages
 WHATSAPP_API_URL = f"{GREEN_API_URL}/waInstance{GREEN_API_INSTANCE_ID}/sendMessage/{GREEN_API_TOKEN}"
