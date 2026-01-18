@@ -139,21 +139,30 @@ async def create_order(
     # Query the order again to get all relationships loaded
     order_with_details = db.query(models.Order).filter(models.Order.id == order.id).first()
     
-    # Send email notification in background
+    # Parse shipping address - handle both string and dict formats
     try:
-        # Parse shipping address from JSON string
-        shipping_addr = json.loads(order.shipping_address) if isinstance(order.shipping_address, str) else shipping_address_json
-        
-        # Prepare order items for email
-        email_items = []
-        for item in order_with_details.items:
-            email_items.append({
-                "product_name": item.product.name if item.product else "Unknown Product",
-                "quantity": item.quantity,
-                "price": float(item.price),
-                "total": float(item.total)
-            })
-        
+        if isinstance(order.shipping_address, str):
+            shipping_addr = json.loads(order.shipping_address)
+        elif isinstance(order.shipping_address, dict):
+            shipping_addr = order.shipping_address
+        else:
+            shipping_addr = shipping_address_json
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"[ORDER] Warning: Could not parse shipping address, using original: {e}")
+        shipping_addr = shipping_address_json
+    
+    # Prepare order items for email and WhatsApp (do this outside try block)
+    email_items = []
+    for item in order_with_details.items:
+        email_items.append({
+            "product_name": item.product.name if item.product else "Unknown Product",
+            "quantity": item.quantity,
+            "price": float(item.price),
+            "total": float(item.total)
+        })
+    
+    # Send email notification
+    try:
         print(f"[ORDER EMAIL] Attempting to send email for order #{order.order_number}")
         
         # Send email synchronously (required for Lambda - background tasks don't work)
