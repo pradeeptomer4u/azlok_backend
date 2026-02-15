@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     REDIS_URL: Optional[str] = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
     # Razorpay settings
-    RAZORPAY_KEY_ID: str = "rzp_live_RUNzD6LppR2Rbc"
-    RAZORPAY_KEY_SECRET: str = "QHjL1yzacXE1r8QOp7GNvHZr"
+    RAZORPAY_KEY_ID: str = "rzp_live_SGPt4X2kAL4DhN"
+    RAZORPAY_KEY_SECRET: str = "FNGrIk6sBa08HugMe7pTrlRL"
     RAZORPAY_WEBHOOK_SECRET: str = "dwGY4yAJufR6u6SK8lc"
 
     class Config:
