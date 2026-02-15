@@ -4,7 +4,7 @@ Description: FastAPI + Mangum serverless app (HTTP API)
 
 Globals:
   Function:
-    Runtime: python3.13
+    Runtime: python3.12
     Timeout: 15
     MemorySize: 512
 

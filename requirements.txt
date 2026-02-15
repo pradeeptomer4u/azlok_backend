@@ -29,6 +29,6 @@ jinja2
 pillow
 aiofiles
 reportlab>=4.0.0
-setuptools>=68.0.0
+setuptools==67.8.0
 aiohttp
 argon2-cffi>=21.3.0
