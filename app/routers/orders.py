@@ -198,7 +198,7 @@ async def create_order(
         print(f"[ORDER WHATSAPP] Attempting to send WhatsApp for order #{order.order_number}")
         
         # Send to a single WhatsApp number (you can configure this)
-        whatsapp_number = "+917300551699"
+        whatsapp_number = "+919719551699"
         
         # Extract product names from email_items
         product_names = [item["product_name"] for item in email_items]
