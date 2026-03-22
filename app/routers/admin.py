@@ -38,18 +38,24 @@ async def admin_dashboard(
     pending_products = db.query(models.Product).filter(models.Product.approval_status == models.ApprovalStatus.PENDING).count()
     total_categories = db.query(models.Category).count()
     total_users = db.query(models.User).count()
-    
+
+    # Orders and revenue
+    total_orders = db.query(models.Order).count()
+    total_revenue = db.query(func.sum(models.Order.total_amount)).scalar() or 0
+
     # Count users by role
     buyers = db.query(models.User).filter(models.User.role == models.UserRole.BUYER).count()
     sellers = db.query(models.User).filter(models.User.role == models.UserRole.SELLER).count()
     admins = db.query(models.User).filter(models.User.role == models.UserRole.ADMIN).count()
     company_users = db.query(models.User).filter(models.User.role == models.UserRole.COMPANY).count()
-    
+
     return {
         "total_products": total_products,
         "pending_products": pending_products,
         "total_categories": total_categories,
         "total_users": total_users,
+        "total_orders": total_orders,
+        "total_revenue": float(total_revenue),
         "user_stats": {
             "buyers": buyers,
             "sellers": sellers,
