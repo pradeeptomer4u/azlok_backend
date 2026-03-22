@@ -917,3 +917,21 @@ class UserPermission(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id], backref="permissions")
     granted_by_user = relationship("User", foreign_keys=[granted_by])
+
+
+class SeoSetting(Base):
+    __tablename__ = "seo_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    page_type = Column(String, nullable=False, index=True)  # homepage, product, category, blog
+    identifier = Column(String, nullable=True, index=True)  # slug; NULL for homepage
+    title = Column(String, nullable=True)
+    description = Column(Text, nullable=True)
+    keywords = Column(Text, nullable=True)
+    og_title = Column(String, nullable=True)
+    og_description = Column(Text, nullable=True)
+    og_image = Column(String, nullable=True)
+    canonical_url = Column(String, nullable=True)
+    robots = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())

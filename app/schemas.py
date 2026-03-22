@@ -1374,3 +1374,28 @@ class ProductNutritionalDetailInDB(ProductNutritionalDetailBase):
 
 class ProductNutritionalDetailResponse(ProductNutritionalDetailInDB):
     pass
+
+
+# SEO Settings schemas
+class SeoSettingBase(BaseModel):
+    page_type: str
+    identifier: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    keywords: Optional[str] = None
+    og_title: Optional[str] = None
+    og_description: Optional[str] = None
+    og_image: Optional[str] = None
+    canonical_url: Optional[str] = None
+    robots: Optional[str] = None
+
+
+class SeoSettingCreate(SeoSettingBase):
+    pass
+
+
+class SeoSettingResponse(SeoSettingBase):
+    id: int
+
+    class Config:
+        orm_mode = True

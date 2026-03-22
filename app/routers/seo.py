@@ -1,12 +1,23 @@
-from fastapi import APIRouter, Depends, Response, Request
+from fastapi import APIRouter, Depends, Response, Request, HTTPException, status
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
-from .. import models
+from .. import models, schemas
 from ..database import get_db
+from ..schemas import SeoSettingCreate, SeoSettingResponse
 from ..utils.sitemap_generator import SitemapGenerator, get_sitemap_generator
+from .auth import get_current_active_user
+
+
+async def get_seo_admin(current_user: schemas.User = Depends(get_current_active_user)):
+    if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admin and company personnel can manage SEO settings",
+        )
+    return current_user
 
 router = APIRouter()
 
@@ -413,3 +424,72 @@ async def get_static_page(page_name: str):
                 "keywords": "page not found, 404, error"
             }
         }
+
+
+# ── SEO Settings CRUD ────────────────────────────────────────────────────────
+
+@router.get("/api/seo/all", response_model=List[SeoSettingResponse])
+def list_seo_settings(
+    db: Session = Depends(get_db),
+    _: schemas.User = Depends(get_seo_admin),
+):
+    """List all SEO settings (admin/company only)."""
+    return db.query(models.SeoSetting).all()
+
+
+@router.get("/api/seo/", response_model=SeoSettingResponse)
+def get_seo_setting(
+    page_type: str,
+    identifier: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    """Fetch SEO settings for a specific page."""
+    q = db.query(models.SeoSetting).filter(models.SeoSetting.page_type == page_type)
+    if identifier:
+        q = q.filter(models.SeoSetting.identifier == identifier)
+    else:
+        q = q.filter(models.SeoSetting.identifier == None)
+    setting = q.first()
+    if not setting:
+        raise HTTPException(status_code=404, detail="SEO setting not found")
+    return setting
+
+
+@router.put("/api/seo/", response_model=SeoSettingResponse)
+def upsert_seo_setting(
+    data: SeoSettingCreate,
+    db: Session = Depends(get_db),
+    _: schemas.User = Depends(get_seo_admin),
+):
+    """Create or update SEO settings (upsert by page_type + identifier)."""
+    q = db.query(models.SeoSetting).filter(models.SeoSetting.page_type == data.page_type)
+    if data.identifier:
+        q = q.filter(models.SeoSetting.identifier == data.identifier)
+    else:
+        q = q.filter(models.SeoSetting.identifier == None)
+    setting = q.first()
+
+    if setting:
+        for field, value in data.model_dump(exclude_unset=True).items():
+            setattr(setting, field, value)
+    else:
+        setting = models.SeoSetting(**data.model_dump())
+        db.add(setting)
+
+    db.commit()
+    db.refresh(setting)
+    return setting
+
+
+@router.delete("/api/seo/{id}", status_code=204)
+def delete_seo_setting(
+    id: int,
+    db: Session = Depends(get_db),
+    _: schemas.User = Depends(get_seo_admin),
+):
+    """Delete SEO settings by id."""
+    setting = db.query(models.SeoSetting).filter(models.SeoSetting.id == id).first()
+    if not setting:
+        raise HTTPException(status_code=404, detail="SEO setting not found")
+    db.delete(setting)
+    db.commit()
