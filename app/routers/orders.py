@@ -265,7 +265,10 @@ async def get_all_orders(
     """
     if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-    return db.query(models.Order).order_by(models.Order.created_at.desc()).offset(skip).limit(limit).all()
+    query = db.query(models.Order)
+    total = query.count()
+    orders = query.order_by(models.Order.created_at.desc()).offset(skip).limit(limit).all()
+    return {"orders": orders, "total": total}
 
 
 @router.get("/")
