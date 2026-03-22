@@ -39,6 +39,9 @@ class Permission(str, Enum):
     # Seller permissions
     MANAGE_SELLERS = "manage_sellers"
     VIEW_SELLERS = "view_sellers"
+    # SEO permissions
+    MANAGE_SEO = "manage_seo"
+    VIEW_SEO = "view_seo"
 
 class ApprovalStatus(str, Enum):
     PENDING = "pending"
