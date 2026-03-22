@@ -145,6 +145,8 @@ async def request_account_deletion(
 
 @router.get("/deletion-requests", response_model=List[dict])
 async def get_deletion_requests(
+    skip: int = 0,
+    limit: int = 20,
     db: Session = Depends(get_db),
     current_user: schemas.User = Depends(get_current_active_user)
 ):
@@ -160,7 +162,7 @@ async def get_deletion_requests(
     # Find all users with deletion requests
     users_with_requests = db.query(models.User).filter(
         models.User.meta_data.has_key("deletion_request")
-    ).all()
+    ).offset(skip).limit(limit).all()
     
     deletion_requests = []
     for user in users_with_requests:

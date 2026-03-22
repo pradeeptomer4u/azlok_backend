@@ -31,6 +31,8 @@ async def get_seller_or_admin_user(current_user: schemas.User = Depends(get_curr
 # Get all tax rates
 @router.get("/tax-rates", response_model=List[Dict])
 async def get_tax_rates(
+    skip: int = 0,
+    limit: int = 20,
     tax_type: Optional[models.TaxType] = None,
     region: Optional[str] = None,
     category_id: Optional[int] = None,
@@ -49,7 +51,7 @@ async def get_tax_rates(
     if category_id:
         query = query.filter(models.TaxRate.category_id == category_id)
     
-    tax_rates = query.all()
+    tax_rates = query.offset(skip).limit(limit).all()
     
     result = []
     for tax_rate in tax_rates:
@@ -174,6 +176,8 @@ async def delete_tax_rate(
 # Get all margin settings
 @router.get("/margin-settings", response_model=List[Dict])
 async def get_margin_settings(
+    skip: int = 0,
+    limit: int = 20,
     product_id: Optional[int] = None,
     category_id: Optional[int] = None,
     seller_id: Optional[int] = None,
@@ -200,7 +204,7 @@ async def get_margin_settings(
     if region:
         query = query.filter(models.MarginSetting.region == region)
     
-    margin_settings = query.all()
+    margin_settings = query.offset(skip).limit(limit).all()
     
     result = []
     for margin in margin_settings:

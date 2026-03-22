@@ -11,6 +11,8 @@ from .auth import get_current_active_user
 router = APIRouter()
 @router.get("/", response_model=List[UserAddressSchema])
 async def get_user_addresses(
+    skip: int = 0,
+    limit: int = 20,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
@@ -18,7 +20,7 @@ async def get_user_addresses(
     addresses = db.query(UserAddress).filter(
         UserAddress.user_id == current_user.id,
         UserAddress.is_active == True
-    ).all()
+    ).offset(skip).limit(limit).all()
     
     # Return the addresses (empty list if none exist)
     return addresses

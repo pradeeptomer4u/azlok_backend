@@ -255,6 +255,8 @@ async def track_order_by_number(
 
 @router.get("/all")
 async def get_all_orders(
+    skip: int = 0,
+    limit: int = 20,
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -263,18 +265,22 @@ async def get_all_orders(
     """
     if current_user.role not in [models.UserRole.ADMIN, models.UserRole.COMPANY]:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-    return db.query(models.Order).order_by(models.Order.created_at.desc()).all()
+    return db.query(models.Order).order_by(models.Order.created_at.desc()).offset(skip).limit(limit).all()
 
 
 @router.get("/")
 async def get_orders(
+    skip: int = 0,
+    limit: int = 20,
     current_user: schemas.User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
     """
     Get all orders for the current user
     """
-    orders = db.query(models.Order).filter(models.Order.user_id == current_user.id).all()
+    orders = db.query(models.Order).filter(
+        models.Order.user_id == current_user.id
+    ).order_by(models.Order.created_at.desc()).offset(skip).limit(limit).all()
     return orders
 
 

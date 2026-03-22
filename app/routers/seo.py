@@ -430,11 +430,13 @@ async def get_static_page(page_name: str):
 
 @router.get("/api/seo/all", response_model=List[SeoSettingResponse])
 def list_seo_settings(
+    skip: int = 0,
+    limit: int = 20,
     db: Session = Depends(get_db),
     _: schemas.User = Depends(get_seo_admin),
 ):
     """List all SEO settings (admin/company only)."""
-    return db.query(models.SeoSetting).all()
+    return db.query(models.SeoSetting).offset(skip).limit(limit).all()
 
 
 @router.get("/api/seo/", response_model=SeoSettingResponse)
