@@ -268,7 +268,38 @@ async def get_all_orders(
     query = db.query(models.Order)
     total = query.count()
     orders = query.order_by(models.Order.created_at.desc()).offset(skip).limit(limit).all()
-    return {"orders": orders, "total": total}
+
+    serialized = []
+    for order in orders:
+        order_items = []
+        for item in order.items:
+            product = item.product
+            order_items.append({
+                "id": item.id,
+                "product_id": item.product_id,
+                "product_name": product.name if product else "Unknown Product",
+                "product_image": (product.image_urls[0] if product and product.image_urls else None),
+                "quantity": item.quantity,
+                "unit_price": item.price,
+                "total_price": item.total,
+            })
+        serialized.append({
+            "id": order.id,
+            "order_number": order.order_number,
+            "user_id": order.user_id,
+            "status": order.status,
+            "payment_status": order.payment_status,
+            "total_amount": order.total_amount,
+            "subtotal_amount": order.subtotal_amount,
+            "tax_amount": order.tax_amount,
+            "shipping_amount": order.shipping_amount,
+            "shipping_address": order.shipping_address,
+            "created_at": order.created_at.isoformat() if order.created_at else None,
+            "updated_at": order.updated_at.isoformat() if order.updated_at else None,
+            "order_items": order_items,
+        })
+
+    return {"orders": serialized, "total": total}
 
 
 @router.get("/")
