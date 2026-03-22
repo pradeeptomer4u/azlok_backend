@@ -55,6 +55,10 @@ class Permission(str, enum.Enum):
     MANAGE_SELLERS = "manage_sellers"
     VIEW_SELLERS = "view_sellers"
 
+    # SEO permissions
+    MANAGE_SEO = "manage_seo"
+    VIEW_SEO = "view_seo"
+
 # Product approval status enum
 class ApprovalStatus(str, enum.Enum):
     PENDING = "pending"
